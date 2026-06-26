@@ -30,30 +30,30 @@ public class CollisionChecker {
         entity.collisionOn = false;
 
         switch (entity.direction) {
-            case "up" -> {
+            case "up":
                 rowTop = (entityTop - entity.speed) / ts;
                 tileNum1 = getTile(colLeft, rowTop);
                 tileNum2 = getTile(colRight, rowTop);
                 if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
-            }
-            case "down" -> {
+                break;
+            case "down":
                 rowBottom = (entityBottom + entity.speed) / ts;
                 tileNum1 = getTile(colLeft, rowBottom);
                 tileNum2 = getTile(colRight, rowBottom);
                 if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
-            }
-            case "left" -> {
+                break;
+            case "left":
                 colLeft = (entityLeft - entity.speed) / ts;
                 tileNum1 = getTile(colLeft, rowTop);
                 tileNum2 = getTile(colLeft, rowBottom);
                 if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
-            }
-            case "right" -> {
+                break;
+            case "right":
                 colRight = (entityRight + entity.speed) / ts;
                 tileNum1 = getTile(colRight, rowTop);
                 tileNum2 = getTile(colRight, rowBottom);
                 if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
-            }
+                break;
         }
     }
 

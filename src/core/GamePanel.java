@@ -23,12 +23,12 @@ public class GamePanel extends JPanel implements Runnable {
     public final int tileSize = 48;
     public final int maxScreenCol = 16;
     public final int maxScreenRow = 12;
-    public final int screenWidth  = tileSize * maxScreenCol; // 768
+    public final int screenWidth = tileSize * maxScreenCol; // 768
     public final int screenHeight = tileSize * maxScreenRow; // 576
 
     // World size
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
+    public final int maxWorldCol = 70;
+    public final int maxWorldRow = 100;
 
     // Target FPS
     private final int FPS = 60;
@@ -48,7 +48,7 @@ public class GamePanel extends JPanel implements Runnable {
     public NPC[] npcs;
     public Enemy[] enemies;
     public SuperObject[] objects;
-    public NPC currentNPC;
+    public Entity currentDialogueEntity;
 
     // Combat effects and projectiles
     public List<DamageNumber> damageNumbers = new ArrayList<>();
@@ -69,13 +69,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
-        tileManager     = new TileManager(this);
+        tileManager = new TileManager(this);
         collisionChecker = new CollisionChecker(this);
-        camera           = new Camera(screenWidth, screenHeight, maxWorldCol * tileSize, maxWorldRow * tileSize);
-        questManager     = new QuestManager();
-        player           = new Player(this, keyHandler);
-        ui               = new UI(this);
-        assetSetter      = new AssetSetter(this);
+        camera = new Camera(screenWidth, screenHeight, maxWorldCol * tileSize, maxWorldRow * tileSize);
+        questManager = new QuestManager();
+        player = new Player(this, keyHandler);
+        ui = new UI(this);
+        assetSetter = new AssetSetter(this);
         assetSetter.setupNPCs();
         assetSetter.setupEnemies();
         assetSetter.setupObjects();
@@ -108,7 +108,7 @@ public class GamePanel extends JPanel implements Runnable {
                 drawCount++;
             }
             if (timer >= 1_000_000_000) {
-                //System.out.println("FPS: " + drawCount);
+                // System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
@@ -120,13 +120,13 @@ public class GamePanel extends JPanel implements Runnable {
         ui.update();
 
         switch (gameState) {
-            case TITLE -> {
+            case TITLE:
                 if (keyHandler.enterJustPressed) {
                     gameState = GameState.PLAY;
                     keyHandler.clearJustPressed();
                 }
-            }
-            case PLAY -> {
+                break;
+            case PLAY:
                 player.update();
                 camera.update(player);
                 updateNPCs();
@@ -134,50 +134,57 @@ public class GamePanel extends JPanel implements Runnable {
                 updateCombat();
                 updateProjectiles();
                 updateDamageNumbers();
-            }
-            case PAUSE, INVENTORY, QUEST_LOG -> {
+                break;
+            case PAUSE:
+            case INVENTORY:
+            case QUEST_LOG:
                 // Player handles key input for these states internally
                 player.update();
-            }
-            case DIALOGUE -> {
+                break;
+            case DIALOGUE:
                 if (keyHandler.interactJustPressed || keyHandler.enterJustPressed) {
-                    if (currentNPC != null) {
-                        currentNPC.advanceDialogue();
+                    if (currentDialogueEntity != null) {
+                        currentDialogueEntity.advanceDialogue();
                     }
                     keyHandler.clearJustPressed();
                 }
-            }
-            case GAME_OVER -> {
+                break;
+            case GAME_OVER:
                 if (keyHandler.enterJustPressed) {
                     resetGame();
                     keyHandler.clearJustPressed();
                 }
-            }
-            case WIN -> {
+                break;
+            case WIN:
                 if (keyHandler.enterJustPressed) {
                     resetGame();
                     keyHandler.clearJustPressed();
                 }
-            }
+                break;
         }
     }
 
     private void updateNPCs() {
-        if (npcs == null) return;
+        if (npcs == null)
+            return;
         for (NPC npc : npcs) {
-            if (npc != null) npc.update();
+            if (npc != null)
+                npc.update();
         }
     }
 
     private void updateEnemies() {
-        if (enemies == null) return;
+        if (enemies == null)
+            return;
         for (Enemy e : enemies) {
-            if (e != null && !e.readyToRemove) e.update();
+            if (e != null && !e.readyToRemove)
+                e.update();
         }
     }
 
     private void updateCombat() {
-        if (enemies == null || player.activeHitboxes == null) return;
+        if (enemies == null || player.activeHitboxes == null)
+            return;
 
         Iterator<AttackHitbox> it = player.activeHitboxes.iterator();
         while (it.hasNext()) {
@@ -188,14 +195,15 @@ public class GamePanel extends JPanel implements Runnable {
             }
             for (int i = 0; i < enemies.length; i++) {
                 Enemy e = enemies[i];
-                if (e == null || !e.alive || e.readyToRemove) continue;
-                if (hb.hasHit(i)) continue;
+                if (e == null || !e.alive || e.readyToRemove)
+                    continue;
+                if (hb.hasHit(i))
+                    continue;
                 if (hb.box.intersects(e.getWorldCollisionBox())) {
                     hb.markHit(i);
                     e.takeDamage(hb.damage);
                     damageNumbers.add(new DamageNumber(
-                        e.worldX + 16, e.worldY, hb.damage, hb.crit
-                    ));
+                            e.worldX + 16, e.worldY, hb.damage, hb.crit));
                     ui.showNotification(hb.crit ? "Critical Hit! -" + hb.damage : "-" + hb.damage);
                 }
             }
@@ -239,7 +247,8 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (ui == null) return;
+        if (ui == null)
+            return;
         Graphics2D g2 = (Graphics2D) g;
 
         // Render hints
@@ -253,31 +262,36 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         // Draw world
-        if (tileManager != null) tileManager.draw(g2);
+        if (tileManager != null)
+            tileManager.draw(g2);
 
         // Draw objects
         if (objects != null) {
             for (SuperObject obj : objects) {
-                if (obj != null) obj.draw(g2);
+                if (obj != null)
+                    obj.draw(g2);
             }
         }
 
         // Draw NPCs
         if (npcs != null) {
             for (NPC npc : npcs) {
-                if (npc != null) npc.draw(g2);
+                if (npc != null)
+                    npc.draw(g2);
             }
         }
 
         // Draw enemies
         if (enemies != null) {
             for (Enemy e : enemies) {
-                if (e != null && !e.readyToRemove) e.draw(g2);
+                if (e != null && !e.readyToRemove)
+                    e.draw(g2);
             }
         }
 
         // Draw player
-        if (player != null) player.draw(g2);
+        if (player != null)
+            player.draw(g2);
 
         // Draw projectiles
         for (Projectile p : projectiles) {
@@ -290,7 +304,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         // Draw UI on top
-        if (ui != null) ui.draw(g2);
+        if (ui != null)
+            ui.draw(g2);
 
         g2.dispose();
     }

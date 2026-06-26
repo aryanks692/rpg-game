@@ -164,13 +164,6 @@ public class OBJ_House extends SuperObject {
         if (screenY + pixelHeight < 0 || screenY > gp.screenHeight) return;
 
         g2.drawImage(image, screenX, screenY, null);
-
-        // Debug interaction box
-        if(false) {
-           g2.setColor(Color.YELLOW);
-           Rectangle c = getWorldCollisionBox();
-           g2.drawRect(c.x - gp.camera.x, c.y - gp.camera.y, c.width, c.height);
-        }
     }
 
     @Override

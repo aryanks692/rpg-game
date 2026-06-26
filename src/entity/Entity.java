@@ -59,6 +59,20 @@ public abstract class Entity {
         this.gp = gp;
     }
 
+    public String getCurrentDialogue() {
+        if (dialogues == null || dialogues.length == 0) return "...";
+        if (dialogueIndex >= dialogues.length) dialogueIndex = 0;
+        return dialogues[dialogueIndex];
+    }
+
+    public void advanceDialogue() {
+        dialogueIndex++;
+        if (dialogueIndex >= dialogues.length) {
+            dialogueIndex = 0;
+            gp.gameState = core.GameState.PLAY;
+        }
+    }
+
     public abstract void update();
     public abstract void draw(Graphics2D g2);
 
@@ -113,12 +127,11 @@ public abstract class Entity {
     }
 
     protected BufferedImage getWalkFrame() {
-        BufferedImage[] frames = switch (direction) {
-            case "up"    -> walkUp;
-            case "left"  -> walkLeft;
-            case "right" -> walkRight;
-            default      -> walkDown;
-        };
+        BufferedImage[] frames;
+        if ("up".equals(direction))         frames = walkUp;
+        else if ("left".equals(direction))  frames = walkLeft;
+        else if ("right".equals(direction)) frames = walkRight;
+        else                                frames = walkDown;
         if (frames == null || frames[spriteNum % frames.length] == null) return null;
         return frames[spriteNum % frames.length];
     }

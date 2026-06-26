@@ -2,7 +2,7 @@
 echo Compiling ZeldaRPG...
 if not exist out mkdir out
 
-javac -d out --source-path src -encoding UTF-8 ^
+javac -d out -sourcepath src -encoding UTF-8 ^
   src/main/GameLauncher.java ^
   src/core/GameState.java ^
   src/core/KeyHandler.java ^
@@ -13,17 +13,22 @@ javac -d out --source-path src -encoding UTF-8 ^
   src/entity/Entity.java ^
   src/entity/Player.java ^
   src/entity/NPC.java ^
+  src/entity/ImageNPC.java ^
   src/entity/enemy/Enemy.java ^
   src/entity/enemy/Slime.java ^
   src/entity/enemy/Skeleton.java ^
   src/entity/enemy/DarkKnight.java ^
+  src/entity/enemy/Samurai.java ^
   src/object/SuperObject.java ^
   src/object/OBJ_Sword.java ^
   src/object/OBJ_Shield.java ^
   src/object/OBJ_Potion.java ^
   src/object/OBJ_Chest.java ^
+  src/object/OBJ_House.java ^
+  src/object/OBJ_Church.java ^
   src/combat/AttackHitbox.java ^
   src/combat/DamageNumber.java ^
+  src/combat/Projectile.java ^
   src/ui/UI.java ^
   src/quest/Quest.java ^
   src/quest/QuestManager.java ^

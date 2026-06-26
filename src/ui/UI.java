@@ -4,6 +4,7 @@ import core.GamePanel;
 import core.GameState;
 import entity.Player;
 import quest.Quest;
+import quest.QuestManager;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -38,14 +39,14 @@ public class UI {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         switch (gp.gameState) {
-            case TITLE     -> drawTitle(g2);
-            case PLAY      -> { drawHUD(g2); drawNotification(g2); }
-            case PAUSE     -> { drawHUD(g2); drawPause(g2); }
-            case DIALOGUE  -> { drawHUD(g2); drawDialogue(g2); }
-            case INVENTORY -> { drawHUD(g2); drawInventory(g2); }
-            case QUEST_LOG -> { drawHUD(g2); drawQuestLog(g2); }
-            case GAME_OVER -> drawGameOver(g2);
-            case WIN       -> drawWin(g2);
+            case TITLE:     drawTitle(g2); break;
+            case PLAY:      drawHUD(g2); drawNotification(g2); break;
+            case PAUSE:     drawHUD(g2); drawPause(g2); break;
+            case DIALOGUE:  drawHUD(g2); drawDialogue(g2); break;
+            case INVENTORY: drawHUD(g2); drawInventory(g2); break;
+            case QUEST_LOG: drawHUD(g2); drawQuestLog(g2); break;
+            case GAME_OVER: drawGameOver(g2); break;
+            case WIN:       drawWin(g2); break;
         }
     }
 
@@ -203,7 +204,7 @@ public class UI {
         g2.drawString(zone, zx, gp.screenHeight - 12);
 
         // === Quest tracker (top center-left) ===
-        var activeQuests = gp.questManager.getActiveQuests();
+        List<Quest> activeQuests = gp.questManager.getActiveQuests();
         if (!activeQuests.isEmpty()) {
             int qtX = gp.screenWidth / 2 - 120, qtY = 10;
             int qtW = 240, qtH = 14 + activeQuests.size() * 28;
@@ -228,7 +229,57 @@ public class UI {
         // === Minimap ===
         drawMinimap(g2);
 
+        // === Boss Health Bar (Bottom Center) ===
+        drawBossHUD(g2);
+
         g2.setStroke(new BasicStroke(1));
+    }
+
+    private void drawBossHUD(Graphics2D g2) {
+        if (gp.enemies == null) return;
+        
+        for (entity.enemy.Enemy e : gp.enemies) {
+            if (e != null && e.isBoss && e.aiState != entity.enemy.Enemy.State.PATROL && e.alive) {
+                // Massive Bottom Bar
+                int bw = gp.screenWidth - 100;
+                int bh = 22;
+                int bx = gp.screenWidth / 2 - bw / 2;
+                int by = gp.screenHeight - bh - 60;
+
+                // 1. Background Panel
+                drawPanel(g2, bx - 10, by - 30, bw + 20, bh + 45);
+                
+                // 2. Boss Name
+                g2.setFont(new Font("Georgia", Font.BOLD, 18));
+                g2.setColor(new Color(255, 220, 80));
+                g2.drawString(e.name, bx + 5, by - 10);
+
+                // 3. Health Bar Shadow
+                g2.setColor(new Color(40, 20, 20));
+                g2.fillRoundRect(bx, by, bw, bh, 6, 6);
+                
+                // 4. Current Health Fill
+                float ratio = (float)e.life / e.maxLife;
+                int fillW = (int)(bw * ratio);
+                
+                // Pulsing Gradient for Boss Life
+                GradientPaint hpPaint = new GradientPaint(bx, by, new Color(200, 30, 30), 
+                                                        bx, by + bh, new Color(120, 10, 10));
+                g2.setPaint(hpPaint);
+                g2.fillRoundRect(bx, by, fillW, bh, 6, 6);
+                
+                // Gloss highlight
+                g2.setColor(new Color(255, 255, 255, 40));
+                g2.fillRoundRect(bx, by, fillW, bh / 2, 6, 6);
+                
+                // 5. Border
+                g2.setColor(new Color(220, 180, 60));
+                g2.setStroke(new BasicStroke(2));
+                g2.drawRoundRect(bx, by, bw, bh, 6, 6);
+                
+                break; // Only draw one boss bar at a time
+            }
+        }
     }
 
     private void drawHeart(Graphics2D g2, int x, int y, int size, boolean filled) {
@@ -329,18 +380,18 @@ public class UI {
     }
 
     private void drawDialogue(Graphics2D g2) {
-        if (gp.currentNPC == null) return;
+        if (gp.currentDialogueEntity == null) return;
         int boxH = 120;
         int boxY = gp.screenHeight - boxH - 20;
         drawPanel(g2, 20, boxY, gp.screenWidth - 40, boxH);
-        // NPC name
+        // Entity name
         g2.setFont(new Font("Arial", Font.BOLD, 14));
         g2.setColor(new Color(255, 220, 80));
-        g2.drawString(gp.currentNPC.name, 36, boxY + 20);
+        g2.drawString(gp.currentDialogueEntity.name, 36, boxY + 20);
         // Dialogue text  (word wrap at 60 chars)
         g2.setFont(new Font("Arial", Font.PLAIN, 13));
         g2.setColor(Color.WHITE);
-        String text = gp.currentNPC.getCurrentDialogue();
+        String text = gp.currentDialogueEntity.getCurrentDialogue();
         String[] words = text.split(" ");
         StringBuilder line = new StringBuilder();
         int ty = boxY + 44;
@@ -426,19 +477,21 @@ public class UI {
         g2.setColor(new Color(255, 220, 80));
         g2.drawString("★  QUEST LOG", px + 160, py + 30);
 
-        var quests = gp.questManager.getAllQuests();
+        List<Quest> quests = gp.questManager.getAllQuests();
         int qy = py + 56;
-        for (var q : quests) {
-            Color c = switch (q.status) {
-                case COMPLETED -> new Color(100, 220, 100);
-                case ACTIVE    -> new Color(220, 220, 255);
-                case INACTIVE  -> new Color(100, 100, 140);
-            };
-            String prefix = switch (q.status) {
-                case COMPLETED -> "✓ ";
-                case ACTIVE    -> "→ ";
-                case INACTIVE  -> "○ ";
-            };
+        for (Quest q : quests) {
+            Color c;
+            switch (q.status) {
+                case COMPLETED: c = new Color(100, 220, 100); break;
+                case ACTIVE:    c = new Color(220, 220, 255); break;
+                default:        c = new Color(100, 100, 140); break;
+            }
+            String prefix;
+            switch (q.status) {
+                case COMPLETED: prefix = "\u2713 "; break;
+                case ACTIVE:    prefix = "\u2192 "; break;
+                default:        prefix = "\u25cb "; break;
+            }
             g2.setFont(new Font("Arial", Font.BOLD, 13));
             g2.setColor(c);
             g2.drawString(prefix + q.title, px + 20, qy);

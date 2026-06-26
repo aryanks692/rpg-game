@@ -30,11 +30,9 @@ public class NPC extends Entity {
         this.height = gp.tileSize;
         collisionBox = new Rectangle(8, 16, 32, 28);
 
-        bodyColor = switch (role) {
-            case "merchant" -> new Color(180, 100, 40);
-            case "elder" -> new Color(100, 100, 160);
-            default -> new Color(180, 70, 70);
-        };
+        if ("merchant".equals(role))  bodyColor = new Color(180, 100, 40);
+        else if ("elder".equals(role)) bodyColor = new Color(100, 100, 160);
+        else                           bodyColor = new Color(180, 70, 70);
         skinColor = new Color(255, 210, 170);
         buildSprites();
     }
@@ -144,10 +142,10 @@ public class NPC extends Entity {
             gp.collisionChecker.checkTile(this);
             if (!collisionOn) {
                 switch (direction) {
-                    case "up" -> worldY -= speed;
-                    case "down" -> worldY += speed;
-                    case "left" -> worldX -= speed;
-                    case "right" -> worldX += speed;
+                    case "up":    worldY -= speed; break;
+                    case "down":  worldY += speed; break;
+                    case "left":  worldX -= speed; break;
+                    case "right": worldX += speed; break;
                 }
                 moving = true;
                 advanceAnimation();
@@ -162,23 +160,8 @@ public class NPC extends Entity {
 
     public void startDialogue() {
         dialogueIndex = 0;
-        gp.currentNPC = this;
-    }
-
-    public String getCurrentDialogue() {
-        if (dialogues == null || dialogues.length == 0)
-            return "...";
-        return dialogues[dialogueIndex];
-    }
-
-    public boolean advanceDialogue() {
-        dialogueIndex++;
-        if (dialogueIndex >= dialogues.length) {
-            dialogueIndex = 0;
-            gp.gameState = GameState.PLAY;
-            return false; // dialogue done
-        }
-        return true;
+        gp.currentDialogueEntity = this;
+        gp.gameState = core.GameState.DIALOGUE;
     }
 
     @Override

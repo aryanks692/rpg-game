@@ -133,10 +133,18 @@ public class DarkKnight extends Enemy {
         if (chargeTimer > 0) {
             chargeTimer--;
             switch (direction) {
-                case "up" -> worldY -= speed * 4;
-                case "down" -> worldY += speed * 4;
-                case "left" -> worldX -= speed * 4;
-                case "right" -> worldX += speed * 4;
+                case "up":
+                    worldY -= speed * 4;
+                    break;
+                case "down":
+                    worldY += speed * 4;
+                    break;
+                case "left":
+                    worldX -= speed * 4;
+                    break;
+                case "right":
+                    worldX += speed * 4;
+                    break;
             }
             return;
         }

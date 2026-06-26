@@ -33,6 +33,10 @@ public abstract class Enemy extends Entity {
     // Flash on hit
     protected int hitFlashTimer = 0;
 
+    // Boss properties
+    public boolean isBoss = false;
+    public boolean dialogueCompleted = false;
+
     protected BufferedImage[] idleFrames = new BufferedImage[2];
     protected BufferedImage[] attackFrames = new BufferedImage[2];
 
@@ -62,6 +66,17 @@ public abstract class Enemy extends Entity {
         advanceAnimation();
     }
 
+    /**
+     * Prevents enemies from entering the village region (Cols 10-32, Rows 9-28).
+     */
+    protected boolean isVillageRegion(int wx, int wy) {
+        int ts = gp.tileSize;
+        int col = wx / ts;
+        int row = wy / ts;
+        // Village buffer zone: give it a small padding to prevent "peeking" in
+        return (col >= 10 && col <= 32 && row >= 9 && row <= 28);
+    }
+
     protected void updateAI() {
         Player player = gp.player;
         double dx = player.worldX - worldX;
@@ -69,16 +84,16 @@ public abstract class Enemy extends Entity {
         double dist = Math.sqrt(dx * dx + dy * dy);
 
         switch (aiState) {
-            case PATROL -> {
+            case PATROL:
                 patrol();
                 if (dist < aggroRange) aiState = State.AGGRO;
-            }
-            case AGGRO -> {
+                break;
+            case AGGRO:
                 moveTowardPlayer(dx, dy, dist);
                 if (dist < attackRange) aiState = State.ATTACK;
                 if (dist > aggroRange * 1.5) aiState = State.PATROL;
-            }
-            case ATTACK -> {
+                break;
+            case ATTACK:
                 if (dist > attackRange * 1.2) {
                     aiState = State.AGGRO;
                 } else {
@@ -87,8 +102,10 @@ public abstract class Enemy extends Entity {
                         attackCooldown = attackCooldownMax;
                     }
                 }
-            }
-            case DEAD -> {}
+                break;
+            case DEAD:
+            default:
+                break;
         }
     }
 
@@ -103,11 +120,19 @@ public abstract class Enemy extends Entity {
         direction = patrolDir;
         gp.collisionChecker.checkTile(this);
         if (!collisionOn) {
+            int nextX = worldX, nextY = worldY;
             switch (direction) {
-                case "up"    -> worldY -= 1;
-                case "down"  -> worldY += 1;
-                case "left"  -> worldX -= 1;
-                case "right" -> worldX += 1;
+                case "up":    nextY -= 1; break;
+                case "down":  nextY += 1; break;
+                case "left":  nextX -= 1; break;
+                case "right": nextX += 1; break;
+            }
+            // Fix original logic and add village check
+            if (!isVillageRegion(nextX, nextY)) {
+                worldX = nextX;
+                worldY = nextY;
+            } else {
+                patrolDirTimer = 100; // Force a direction change next frame
             }
         }
         moving = true;
@@ -129,13 +154,13 @@ public abstract class Enemy extends Entity {
         worldX += mx;
         collisionBox = new Rectangle(8, 16, 32, 28);
         gp.collisionChecker.checkTile(this);
-        if (collisionOn) worldX = oldX;
+        if (collisionOn || isVillageRegion(worldX, worldY)) worldX = oldX;
 
         // Move Y
         int oldY = worldY;
         worldY += my;
         gp.collisionChecker.checkTile(this);
-        if (collisionOn) worldY = oldY;
+        if (collisionOn || isVillageRegion(worldX, worldY)) worldY = oldY;
 
         moving = true;
     }

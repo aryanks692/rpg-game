@@ -62,7 +62,7 @@ public class Player extends Entity {
 
         // Start position (village)
         worldX = gp.tileSize * 10;
-        worldY = gp.tileSize * 10;
+        worldY = gp.tileSize * 40;
 
         buildSprites();
     }
@@ -196,10 +196,10 @@ public class Player extends Entity {
         g.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         int cx = ts / 2, cy = ts / 2;
         switch (dir) {
-            case "down"  -> { g.drawLine(cx, cy, cx + (frame == 0 ? 16 : 8), cy + 20); }
-            case "up"    -> { g.drawLine(cx, cy, cx - (frame == 0 ? 16 : 8), cy - 20); }
-            case "left"  -> { g.drawLine(cx, cy, cx - 20, cy + (frame == 0 ? 10 : 5)); }
-            case "right" -> { g.drawLine(cx, cy, cx + 20, cy - (frame == 0 ? 10 : 5)); }
+            case "down":  { g.drawLine(cx, cy, cx + (frame == 0 ? 16 : 8), cy + 20); break; }
+            case "up":    { g.drawLine(cx, cy, cx - (frame == 0 ? 16 : 8), cy - 20); break; }
+            case "left":  { g.drawLine(cx, cy, cx - 20, cy + (frame == 0 ? 10 : 5)); break; }
+            case "right": { g.drawLine(cx, cy, cx + 20, cy - (frame == 0 ? 10 : 5)); break; }
         }
         g.dispose();
         return img;
@@ -291,10 +291,10 @@ public class Player extends Entity {
             gp.collisionChecker.checkTile(this);
             if (!collisionOn) {
                 switch (direction) {
-                    case "up"    -> worldY -= moveSpeed;
-                    case "down"  -> worldY += moveSpeed;
-                    case "left"  -> worldX -= moveSpeed;
-                    case "right" -> worldX += moveSpeed;
+                    case "up":    worldY -= moveSpeed; break;
+                    case "down":  worldY += moveSpeed; break;
+                    case "left":  worldX -= moveSpeed; break;
+                    case "right": worldX += moveSpeed; break;
                 }
             }
             // Clamp to world
@@ -326,10 +326,10 @@ public class Player extends Entity {
         // Increased hitbox size to make hitting enemies easier
         int hw = 60, hh = 60;
         switch (direction) {
-            case "up"    -> { hx = worldX - 6;        hy = worldY - 45;       }
-            case "down"  -> { hx = worldX - 6;        hy = worldY + height - 10;   }
-            case "left"  -> { hx = worldX - 45;       hy = worldY - 6;        }
-            case "right" -> { hx = worldX + width - 10;    hy = worldY - 6;        }
+            case "up":    { hx = worldX - 6;        hy = worldY - 45;            break; }
+            case "down":  { hx = worldX - 6;        hy = worldY + height - 10;   break; }
+            case "left":  { hx = worldX - 45;       hy = worldY - 6;             break; }
+            case "right": { hx = worldX + width - 10; hy = worldY - 6;           break; }
         }
         int maxTargets = gp.enemies != null ? gp.enemies.length : 10;
         AttackHitbox hitbox = new AttackHitbox(hx, hy, hw, hh, attackDamage, this, maxTargets);
@@ -355,9 +355,12 @@ public class Player extends Entity {
         if (gp.objects != null) {
             for (object.SuperObject obj : gp.objects) {
                 if (obj == null || obj.pickedUp) continue;
-                if (obj instanceof object.OBJ_Chest chest && !chest.opened) {
-                    if (interactZone.intersects(obj.getWorldCollisionBox())) {
-                        chest.onPickup(this);
+                if (obj instanceof object.OBJ_Chest) {
+                    object.OBJ_Chest chest = (object.OBJ_Chest) obj;
+                    if (!chest.opened) {
+                        if (interactZone.intersects(obj.getWorldCollisionBox())) {
+                            chest.onPickup(this);
+                        }
                     }
                 }
             }
@@ -380,11 +383,19 @@ public class Player extends Entity {
         int col = (worldX + width / 2) / gp.tileSize;
         int row = (worldY + height / 2) / gp.tileSize;
         String zone;
-        if (col < 22 && row < 25) zone = "Verdant Village";
-        else if (col >= 33 && row < 25) zone = "Darkwood Forest";
-        else if (col < 22 && row >= 30) zone = "Crystal Caves";
-        else if (col >= 30 && row >= 28) zone = "Ancient Ruins";
-        else zone = currentZone;
+
+        // --- NEW ZONE COORDINATES (POST 30-ROW SHIFT) ---
+        if (row < 30) {
+            zone = "Great Savannah";
+        } else if (row >= 30 && row < 39) {
+            zone = "Golden Meadows";
+        } else if (row >= 39 && row < 62) {
+            if (col < 33) zone = "Verdant Village";
+            else zone = "Darkwood Forest";
+        } else {
+            if (col < 28) zone = "Crystal Caves";
+            else zone = "Ancient Ruins";
+        }
 
         if (!zone.equals(currentZone)) {
             currentZone = zone;
@@ -428,22 +439,23 @@ public class Player extends Entity {
         BufferedImage frame;
         if (attacking) {
             int afr = (attackTimer < ATTACK_DURATION / 2) ? 0 : 1;
-            BufferedImage[] af = switch (direction) {
-                case "up"    -> attackUp;
-                case "left"  -> attackLeft;
-                case "right" -> attackRight;
-                default      -> attackDown;
-            };
+            BufferedImage[] af;
+            switch (direction) {
+                case "up":    af = attackUp;    break;
+                case "left":  af = attackLeft;  break;
+                case "right": af = attackRight; break;
+                default:      af = attackDown;  break;
+            }
             frame = af[afr];
         } else if (moving) {
             frame = getWalkFrame();
         } else {
-            frame = switch (direction) {
-                case "up"    -> walkUp[0];
-                case "left"  -> walkLeft[0];
-                case "right" -> walkRight[0];
-                default      -> walkDown[0];
-            };
+            switch (direction) {
+                case "up":    frame = walkUp[0];    break;
+                case "left":  frame = walkLeft[0];  break;
+                case "right": frame = walkRight[0]; break;
+                default:      frame = walkDown[0];  break;
+            }
         }
         if (frame != null) g2.drawImage(frame, screenX, screenY, width, height, null);
 

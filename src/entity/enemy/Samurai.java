@@ -162,10 +162,10 @@ public class Samurai extends Enemy {
             dashTimer--;
 
             switch (direction) {
-                case "up" -> worldY -= speed * 5;
-                case "down" -> worldY += speed * 5;
-                case "left" -> worldX -= speed * 5;
-                case "right" -> worldX += speed * 5;
+                case "up":    worldY -= speed * 5; break;
+                case "down":  worldY += speed * 5; break;
+                case "left":  worldX -= speed * 5; break;
+                case "right": worldX += speed * 5; break;
             }
 
             if (dashTimer == 0) {

@@ -35,18 +35,15 @@ public class Quest {
     }
 
     public boolean isComplete() {
-        return switch (type) {
-            case KILL    -> killCount >= killRequired;
-            case FETCH   -> false; // handled by inventory
-            case EXPLORE -> explored;
-        };
+        if (type == Type.KILL)    return killCount >= killRequired;
+        if (type == Type.EXPLORE) return explored;
+        return false;
     }
 
     public String getProgress() {
-        return switch (type) {
-            case KILL    -> killCount + "/" + killRequired + " " + targetEnemy + "s slain";
-            case FETCH   -> "Find: " + targetItem;
-            case EXPLORE -> explored ? "Area discovered!" : "Find: " + targetZone;
-        };
+        if (type == Type.KILL)    return killCount + "/" + killRequired + " " + targetEnemy + "s slain";
+        if (type == Type.FETCH)   return "Find: " + targetItem;
+        if (type == Type.EXPLORE) return explored ? "Area discovered!" : "Find: " + targetZone;
+        return "";
     }
 }

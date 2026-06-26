@@ -1,6 +1,7 @@
 package quest;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class QuestManager {
     private List<Quest> quests = new ArrayList<>();
@@ -39,13 +40,22 @@ public class QuestManager {
         q4.rewardGold = 120;
         quests.add(q4);
 
-        // Activate starter quest
+        // Savannah Quest
+        Quest q5 = new Quest("Q_SAVANNAH", "Master of the Plains",
+            "Conquer the vast northern plains. Discover the Great Savannah.", Quest.Type.EXPLORE);
+        q5.targetZone = "Great Savannah";
+        q5.rewardGold = 150;
+        q5.rewardItem = "Gold Potion";
+        quests.add(q5);
+
+        // Activate starter quests
         q1.status = Quest.Status.ACTIVE;
         q2.status = Quest.Status.ACTIVE;
+        q5.status = Quest.Status.ACTIVE;
     }
 
     public List<Quest> getActiveQuests() {
-        return quests.stream().filter(q -> q.status == Quest.Status.ACTIVE).toList();
+        return quests.stream().filter(q -> q.status == Quest.Status.ACTIVE).collect(Collectors.toList());
     }
 
     public List<Quest> getAllQuests() {

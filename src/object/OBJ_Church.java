@@ -113,7 +113,7 @@ public class OBJ_Church extends SuperObject {
         g2.fillOval(pixelWidth / 2 - 10, doorY + 30, 6, 6);
         g2.fillOval(pixelWidth / 2 + 4, doorY + 30, 6, 6);
 
-        // Awesome Stained Glass window
+        // Stained Glass window
         int winW = 30;
         int winH = 40;
         int winX = pixelWidth / 2 - winW / 2;
