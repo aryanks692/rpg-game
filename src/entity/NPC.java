@@ -6,8 +6,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class NPC extends Entity {
-    public String[] dialogues;
-    private int dialogueIndex = 0;
     private int wanderTimer = 0;
     private int wanderDir = 0;
 
@@ -22,7 +20,7 @@ public class NPC extends Entity {
         this.role = role;
         this.worldX = worldX;
         this.worldY = worldY;
-        this.dialogues = dialogues;
+        this.dialogues = dialogues; // stored in Entity.dialogues
         this.maxLife = 50;
         this.life = 50;
         this.speed = 1;
@@ -159,7 +157,7 @@ public class NPC extends Entity {
     }
 
     public void startDialogue() {
-        dialogueIndex = 0;
+        dialogueIndex = 0; // reset Entity's dialogueIndex
         gp.currentDialogueEntity = this;
         gp.gameState = core.GameState.DIALOGUE;
     }

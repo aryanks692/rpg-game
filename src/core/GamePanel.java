@@ -42,6 +42,7 @@ public class GamePanel extends JPanel implements Runnable {
     public AssetSetter assetSetter;
     public QuestManager questManager;
     public UI ui;
+    public Sound sound;
 
     // Entities
     public Player player;
@@ -79,6 +80,16 @@ public class GamePanel extends JPanel implements Runnable {
         assetSetter.setupNPCs();
         assetSetter.setupEnemies();
         assetSetter.setupObjects();
+        
+        sound = new Sound();
+        sound.loadTrack("Verdant Village", "/res/sound/village.mid");
+        sound.loadTrack("Darkwood Forest", "/res/sound/forest.mid");
+        sound.loadTrack("Great Savannah", "/res/sound/savannah.mid");
+        sound.loadTrack("Golden Meadows", "/res/sound/village.mid"); // Fallback
+        sound.loadTrack("Crystal Caves", "/res/sound/cave.mid");
+        sound.loadTrack("Ancient Ruins", "/res/sound/cave.mid"); // Fallback
+        
+        sound.play("Verdant Village");
     }
 
     public void startGameThread() {
@@ -249,7 +260,11 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         if (ui == null)
             return;
-        Graphics2D g2 = (Graphics2D) g;
+
+        // Render everything into an offscreen buffer at the NATIVE resolution.
+        // This ensures the UI always uses correct coordinates regardless of window size.
+        BufferedImage offscreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = offscreen.createGraphics();
 
         // Render hints
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -257,56 +272,59 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (gameState == GameState.TITLE) {
             ui.draw(g2);
-            g2.dispose();
-            return;
-        }
+        } else {
+            // Draw world
+            if (tileManager != null)
+                tileManager.draw(g2);
 
-        // Draw world
-        if (tileManager != null)
-            tileManager.draw(g2);
-
-        // Draw objects
-        if (objects != null) {
-            for (SuperObject obj : objects) {
-                if (obj != null)
-                    obj.draw(g2);
+            // Draw objects
+            if (objects != null) {
+                for (SuperObject obj : objects) {
+                    if (obj != null)
+                        obj.draw(g2);
+                }
             }
-        }
 
-        // Draw NPCs
-        if (npcs != null) {
-            for (NPC npc : npcs) {
-                if (npc != null)
-                    npc.draw(g2);
+            // Draw NPCs
+            if (npcs != null) {
+                for (NPC npc : npcs) {
+                    if (npc != null)
+                        npc.draw(g2);
+                }
             }
-        }
 
-        // Draw enemies
-        if (enemies != null) {
-            for (Enemy e : enemies) {
-                if (e != null && !e.readyToRemove)
-                    e.draw(g2);
+            // Draw enemies
+            if (enemies != null) {
+                for (Enemy e : enemies) {
+                    if (e != null && !e.readyToRemove)
+                        e.draw(g2);
+                }
             }
+
+            // Draw player
+            if (player != null)
+                player.draw(g2);
+
+            // Draw projectiles
+            for (Projectile p : projectiles) {
+                p.draw(g2, camera.x, camera.y);
+            }
+
+            // Draw damage numbers
+            for (DamageNumber dn : damageNumbers) {
+                dn.draw(g2, camera.x, camera.y);
+            }
+
+            // Draw UI on top
+            if (ui != null)
+                ui.draw(g2);
         }
-
-        // Draw player
-        if (player != null)
-            player.draw(g2);
-
-        // Draw projectiles
-        for (Projectile p : projectiles) {
-            p.draw(g2, camera.x, camera.y);
-        }
-
-        // Draw damage numbers
-        for (DamageNumber dn : damageNumbers) {
-            dn.draw(g2, camera.x, camera.y);
-        }
-
-        // Draw UI on top
-        if (ui != null)
-            ui.draw(g2);
 
         g2.dispose();
+
+        // Now scale the offscreen buffer to fill the actual window
+        Graphics2D wg = (Graphics2D) g;
+        wg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        wg.drawImage(offscreen, 0, 0, getWidth(), getHeight(), null);
     }
 }

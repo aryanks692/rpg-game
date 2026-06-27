@@ -12,7 +12,7 @@ public class OBJ_Sword extends SuperObject {
         name = "Sword";
         damage = 15;
         description = "A sturdy iron sword. Deals " + damage + " damage.";
-        image = createIcon(new Color(180, 180, 200), new Color(220, 220, 255), "⚔");
+        image = createIcon(new Color(180, 180, 200), new Color(220, 220, 255), "Sw");
     }
 
     @Override

@@ -7,6 +7,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/core/GameState.java ^
   src/core/KeyHandler.java ^
   src/core/GamePanel.java ^
+  src/core/Sound.java ^
   src/camera/Camera.java ^
   src/tile/Tile.java ^
   src/tile/TileManager.java ^
@@ -43,4 +44,4 @@ if %errorlevel% neq 0 (
 )
 
 echo Build successful! Launching game...
-java -cp out main.GameLauncher
+java -cp "out;src" main.GameLauncher

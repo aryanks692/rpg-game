@@ -7,7 +7,7 @@ public class GameLauncher {
     public static void main(String[] args) {
         JFrame window = new JFrame("ZeldaRPG - Chronicles of the Lost Kingdom");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
+        window.setResizable(true);
 
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);

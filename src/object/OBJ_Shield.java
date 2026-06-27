@@ -12,7 +12,7 @@ public class OBJ_Shield extends SuperObject {
         name = "Shield";
         defense = 5;
         description = "An iron shield. Reduces incoming damage by " + defense + ".";
-        image = createIcon(new Color(100, 160, 220), new Color(200, 230, 255), "🛡");
+        image = createIcon(new Color(100, 160, 220), new Color(200, 230, 255), "Sh");
     }
 
     @Override

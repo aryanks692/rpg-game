@@ -400,6 +400,9 @@ public class Player extends Entity {
         if (!zone.equals(currentZone)) {
             currentZone = zone;
             gp.questManager.onZoneEntered(zone);
+            if (gp.sound != null) {
+                gp.sound.play(zone);
+            }
         }
     }
 
