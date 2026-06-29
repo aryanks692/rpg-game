@@ -19,6 +19,7 @@ public class UI {
     // Title screen animation
     private float titleAlpha = 0;
     private int titleTimer = 0;
+    private int saveSlotCommandNum = 1;
 
     // Notification system
     private String notification = "";
@@ -46,7 +47,10 @@ public class UI {
             case INVENTORY: drawHUD(g2); drawInventory(g2); break;
             case QUEST_LOG: drawHUD(g2); drawQuestLog(g2); break;
             case GAME_OVER: drawGameOver(g2); break;
+            case DEATH:     drawDeath(g2); break;
             case WIN:       drawWin(g2); break;
+            case SAVE_MENU: drawSaveLoadMenu(g2, true); break;
+            case LOAD_MENU: drawSaveLoadMenu(g2, false); break;
         }
     }
 
@@ -124,9 +128,18 @@ public class UI {
         if ((titleTimer / 30) % 2 == 0) {
             g2.setFont(hudFont);
             g2.setColor(Color.WHITE);
-            String prompt = "▶  Press ENTER to Begin  ◀";
+            String prompt = gp.saveManager.hasAnySave() ? "▶  Press ENTER to Continue  ◀" : "▶  Press ENTER to Begin  ◀";
             fm = g2.getFontMetrics();
             g2.drawString(prompt, gp.screenWidth / 2 - fm.stringWidth(prompt) / 2, gp.screenHeight / 2 + 80);
+        }
+
+        // New Game prompt if save exists
+        if (gp.saveManager.hasAnySave()) {
+            g2.setFont(smallFont);
+            g2.setColor(new Color(255, 100, 100));
+            String prompt2 = "Press R to Start New Game";
+            fm = g2.getFontMetrics();
+            g2.drawString(prompt2, gp.screenWidth / 2 - fm.stringWidth(prompt2) / 2, gp.screenHeight / 2 + 100);
         }
 
         // Controls hint
@@ -528,6 +541,28 @@ public class UI {
         g2.drawString("Press ENTER to return to title", gp.screenWidth / 2 - 90, gp.screenHeight / 2 + 40);
     }
 
+    private void drawDeath(Graphics2D g2) {
+        g2.setColor(new Color(0, 0, 0, 200));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        
+        g2.setFont(new Font("Georgia", Font.BOLD, 60));
+        g2.setColor(new Color(200, 30, 30));
+        FontMetrics fm = g2.getFontMetrics();
+        String text = "YOU DIED";
+        g2.drawString(text, gp.screenWidth / 2 - fm.stringWidth(text) / 2, gp.screenHeight / 2 - 40);
+        
+        g2.setFont(hudFont);
+        if (gp.saveManager.hasAnySave()) {
+            g2.setColor(new Color(220, 220, 255));
+            String t1 = "Press ENTER to Restore from Save";
+            g2.drawString(t1, gp.screenWidth / 2 - fm.stringWidth(t1) / 2, gp.screenHeight / 2 + 20);
+        }
+        
+        g2.setColor(new Color(255, 100, 100));
+        String t2 = "Press R to Start a New Game";
+        g2.drawString(t2, gp.screenWidth / 2 - fm.stringWidth(t2) / 2, gp.screenHeight / 2 + 50);
+    }
+
     private void drawWin(Graphics2D g2) {
         GradientPaint gp2 = new GradientPaint(0, 0, new Color(20, 10, 40), 0, gp.screenHeight, new Color(80, 40, 120));
         g2.setPaint(gp2);
@@ -585,11 +620,102 @@ public class UI {
     }
 
     public void update() {
+        if (notifTimer > 0) notifTimer--;
+
         titleTimer++;
         // Check game over / win
         Player p = gp.player;
         if (p != null && !p.alive && gp.gameState == GameState.PLAY) {
-            gp.gameState = GameState.GAME_OVER;
+            gp.gameState = GameState.DEATH;
         }
+
+        // Handle Save/Load Menu Navigation
+        if (gp.gameState == GameState.SAVE_MENU || gp.gameState == GameState.LOAD_MENU) {
+            int minSlot = (gp.gameState == GameState.SAVE_MENU) ? 1 : 0;
+            if (gp.keyHandler.upPressed) {
+                saveSlotCommandNum--;
+                if (saveSlotCommandNum < minSlot) saveSlotCommandNum = 4;
+                gp.keyHandler.upPressed = false;
+            }
+            if (gp.keyHandler.downPressed) {
+                saveSlotCommandNum++;
+                if (saveSlotCommandNum > 4) saveSlotCommandNum = minSlot;
+                gp.keyHandler.downPressed = false;
+            }
+            if (gp.keyHandler.enterJustPressed) {
+                if (gp.gameState == GameState.SAVE_MENU) {
+                    gp.currentSaveSlot = saveSlotCommandNum;
+                    gp.saveManager.save(saveSlotCommandNum);
+                    gp.gameState = GameState.PLAY;
+                } else if (gp.gameState == GameState.LOAD_MENU) {
+                    if (gp.saveManager.hasSave(saveSlotCommandNum)) {
+                        gp.currentSaveSlot = saveSlotCommandNum;
+                        gp.saveManager.load(saveSlotCommandNum);
+                        gp.gameState = GameState.PLAY;
+                    } else {
+                        showNotification("Slot empty!");
+                    }
+                }
+                gp.keyHandler.clearJustPressed();
+            }
+            if (gp.keyHandler.pauseJustPressed) {
+                gp.gameState = (gp.player.alive && gp.playTimeTicks > 0) ? GameState.PLAY : GameState.TITLE;
+                gp.keyHandler.clearJustPressed();
+            }
+        }
+    }
+
+    private void drawSaveLoadMenu(Graphics2D g2, boolean isSaveMode) {
+        g2.setColor(new Color(0, 0, 0, 220));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        
+        g2.setFont(titleFont.deriveFont(32f));
+        g2.setColor(Color.WHITE);
+        String title = isSaveMode ? "Save to which file?" : "Load from which file?";
+        g2.drawString(title, gp.screenWidth/2 - g2.getFontMetrics().stringWidth(title)/2, 60);
+        
+        int slotX = gp.screenWidth / 2 - 250;
+        int slotY = 90;
+        int slotW = 500;
+        int slotH = 75;
+        
+        int startSlot = isSaveMode ? 1 : 0;
+        if (isSaveMode && saveSlotCommandNum == 0) saveSlotCommandNum = 1;
+        
+        for (int i = startSlot; i <= 4; i++) {
+            if (i == saveSlotCommandNum) {
+                g2.setColor(new Color(255, 255, 255, 80));
+                g2.fillRoundRect(slotX - 5, slotY - 5, slotW + 10, slotH + 10, 10, 10);
+            }
+            drawPanel(g2, slotX, slotY, slotW, slotH);
+            
+            g2.setFont(hudFont.deriveFont(18f));
+            g2.setColor(Color.WHITE);
+            String slotName = (i == 0) ? "Auto-Save" : "File " + i;
+            g2.drawString(slotName, slotX + 20, slotY + 45);
+            
+            core.SaveManager.SaveInfo info = gp.saveManager.getSaveInfo(i);
+            if (info.exists) {
+                g2.setFont(smallFont.deriveFont(16f));
+                g2.setColor(new Color(220, 220, 220));
+                g2.drawString("Lv: " + info.level, slotX + 130, slotY + 30);
+                g2.drawString(info.zone, slotX + 130, slotY + 55);
+                
+                long secs = info.playTimeTicks / 60;
+                String timeStr = String.format("%02d:%02d:%02d", secs / 3600, (secs % 3600) / 60, secs % 60);
+                g2.setFont(hudFont.deriveFont(16f));
+                g2.drawString(timeStr, slotX + 400, slotY + 45);
+            } else {
+                g2.setColor(Color.GRAY);
+                g2.setFont(smallFont.deriveFont(16f));
+                g2.drawString("[ Empty ]", slotX + 130, slotY + 45);
+            }
+            
+            slotY += slotH + 15;
+        }
+        
+        g2.setFont(smallFont.deriveFont(12f));
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.drawString("Press ESC to cancel", 20, gp.screenHeight - 20);
     }
 }

@@ -12,33 +12,41 @@ public class SunGuardian extends Enemy {
     private int auraTimer = 0;
     private int dashCooldown = 0;
 
-    public SunGuardian(GamePanel gp, int worldX, int worldY) {
-        super(gp, worldX, worldY, gp.tileSize * 15);
-        this.type = "SunGuardian";
-        this.isBoss = true;
-        this.maxLife = 50;
-        this.life = maxLife;
-        this.speed = 3;
-        this.attackDamage = 25;
-        this.attackRange = gp.tileSize * 6;
-        this.attackCooldownMax = 120;
+   public SunGuardian(GamePanel gp, int worldX, int worldY) {
+    super(gp, worldX, worldY, gp.tileSize * 15);
 
-        // Massive Size
-        this.width = gp.tileSize * 3;
-        this.height = gp.tileSize * 3;
-        this.collisionBox = new Rectangle(8 * 3, 16 * 3, 32 * 3, 28 * 3);
+    this.type = "SunGuardian";
+    this.isBoss = true;
 
-        this.name = "THE SUN-GUARDIAN";
-        this.dialogues = new String[] {
-            "Angena gatram.",
-            "nayanen vakratam",
-            "nyanen rajyam",
-            "Lavdene Bhojyam"
-        };
+    // Boss Stats — challenging but beatable
+    this.maxLife = 60;
+    this.life = maxLife;
 
-        buildSprites();
-    }
+    this.speed = 2;
 
+    this.attackDamage = 7;           // Reduced: won't one-shot the player
+    this.attackRange = gp.tileSize * 2; // Slightly shorter reach
+    this.attackCooldownMax = 240;    // Longer gap between attacks
+    this.invincibleDuration = 15;    // Short i-frames so hits register quickly
+    this.xpReward = 150;
+    this.goldReward = 80;
+
+    // Massive Size
+    this.width = gp.tileSize * 3;
+    this.height = gp.tileSize * 3;
+    this.collisionBox = new Rectangle(8 * 3, 16 * 3, 32 * 3, 28 * 3);
+
+    this.name = "THE SUN-GUARDIAN";
+
+    this.dialogues = new String[] {
+        "Angena gatram.",
+        "Nayanen vakratam.",
+        "Jñānena rājyam.",
+        "Labdhena bhojyam."
+    };
+
+    buildSprites();
+}
     private void buildSprites() {
         for (int i = 0; i < 4; i++) {
             walkDown[i] = drawSunGuardian("down", i, false);
@@ -156,15 +164,16 @@ public class SunGuardian extends Enemy {
 
         // Pulsing Solar Flare logic
         auraTimer++;
-        if (auraTimer > 180 && dashCooldown <= 0) {
-            // High velocity charge
-            speed = 8;
-            dashCooldown = 60;
+        if (auraTimer > 240 && dashCooldown <= 0) {
+            // Dash charge — speed capped to 5 so player can still evade
+            speed = 5;
+            dashCooldown = 50;
             auraTimer = 0;
+            gp.ui.showNotification("Sun Guardian charges!");
         } else if (dashCooldown > 0) {
             dashCooldown--;
             if (dashCooldown == 0)
-                speed = 3;
+                speed = 2;
         }
     }
 }

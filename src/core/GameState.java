@@ -8,5 +8,8 @@ public enum GameState {
     INVENTORY,
     QUEST_LOG,
     GAME_OVER,
-    WIN
+    WIN,
+    DEATH,
+    SAVE_MENU,
+    LOAD_MENU
 }

@@ -1,12 +1,17 @@
 package quest;
 
+import core.GamePanel;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class QuestManager {
     private List<Quest> quests = new ArrayList<>();
 
-    public QuestManager() {
+    private GamePanel gp;
+
+    public QuestManager(GamePanel gp) {
+        this.gp = gp;
         initQuests();
     }
 
@@ -71,6 +76,7 @@ public class QuestManager {
                     q.status = Quest.Status.COMPLETED;
                     // Activate next quest
                     activateNextQuest();
+                    gp.saveManager.save(0);
                 }
             }
         }
@@ -84,6 +90,7 @@ public class QuestManager {
                 if (q.isComplete()) {
                     q.status = Quest.Status.COMPLETED;
                     activateNextQuest();
+                    gp.saveManager.save(0);
                 }
             }
         }
@@ -100,5 +107,33 @@ public class QuestManager {
 
     public int totalCompleted() {
         return (int) quests.stream().filter(q -> q.status == Quest.Status.COMPLETED).count();
+    }
+
+    public String getQuestSaveData() {
+        StringBuilder sb = new StringBuilder();
+        for (Quest q : quests) {
+            sb.append(q.id).append(":").append(q.status.name()).append(":").append(q.killCount).append(":").append(q.explored).append(";");
+        }
+        return sb.toString();
+    }
+
+    public void loadQuestSaveData(String data) {
+        if (data == null || data.isEmpty()) return;
+        String[] qDataArray = data.split(";");
+        for (String qData : qDataArray) {
+            if (qData.isEmpty()) continue;
+            String[] parts = qData.split(":");
+            if (parts.length >= 4) {
+                String id = parts[0];
+                for (Quest q : quests) {
+                    if (q.id.equals(id)) {
+                        q.status = Quest.Status.valueOf(parts[1]);
+                        q.killCount = Integer.parseInt(parts[2]);
+                        q.explored = Boolean.parseBoolean(parts[3]);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

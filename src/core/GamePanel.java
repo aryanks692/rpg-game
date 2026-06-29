@@ -43,6 +43,7 @@ public class GamePanel extends JPanel implements Runnable {
     public QuestManager questManager;
     public UI ui;
     public Sound sound;
+    public SaveManager saveManager;
 
     // Entities
     public Player player;
@@ -60,6 +61,10 @@ public class GamePanel extends JPanel implements Runnable {
 
     // Background music tick (simple procedural sound)
     private long tick = 0;
+    
+    // Play time
+    public long playTimeTicks = 0;
+    public int currentSaveSlot = 0; // 0 = Auto-save, 1-4 = Manual
 
     public GamePanel() {
         setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -73,9 +78,10 @@ public class GamePanel extends JPanel implements Runnable {
         tileManager = new TileManager(this);
         collisionChecker = new CollisionChecker(this);
         camera = new Camera(screenWidth, screenHeight, maxWorldCol * tileSize, maxWorldRow * tileSize);
-        questManager = new QuestManager();
+        questManager = new QuestManager(this);
         player = new Player(this, keyHandler);
         ui = new UI(this);
+        saveManager = new SaveManager(this);
         assetSetter = new AssetSetter(this);
         assetSetter.setupNPCs();
         assetSetter.setupEnemies();
@@ -133,11 +139,24 @@ public class GamePanel extends JPanel implements Runnable {
         switch (gameState) {
             case TITLE:
                 if (keyHandler.enterJustPressed) {
-                    gameState = GameState.PLAY;
+                    if (saveManager.hasAnySave()) {
+                        gameState = GameState.LOAD_MENU;
+                    } else {
+                        gameState = GameState.PLAY;
+                    }
+                    keyHandler.clearJustPressed();
+                }
+                if (keyHandler.newGameJustPressed) {
+                    gameState = GameState.SAVE_MENU;
                     keyHandler.clearJustPressed();
                 }
                 break;
             case PLAY:
+                playTimeTicks++;
+                if (keyHandler.saveJustPressed) {
+                    gameState = GameState.SAVE_MENU;
+                    keyHandler.clearJustPressed();
+                }
                 player.update();
                 camera.update(player);
                 updateNPCs();
@@ -149,7 +168,9 @@ public class GamePanel extends JPanel implements Runnable {
             case PAUSE:
             case INVENTORY:
             case QUEST_LOG:
-                // Player handles key input for these states internally
+            case SAVE_MENU:
+            case LOAD_MENU:
+                // Player or UI handles key input for these states internally
                 player.update();
                 break;
             case DIALOGUE:
@@ -163,6 +184,22 @@ public class GamePanel extends JPanel implements Runnable {
             case GAME_OVER:
                 if (keyHandler.enterJustPressed) {
                     resetGame();
+                    keyHandler.clearJustPressed();
+                }
+                break;
+            case DEATH:
+                if (keyHandler.enterJustPressed) { // Restore
+                    if (saveManager.hasAnySave()) {
+                        gameState = GameState.LOAD_MENU;
+                    } else {
+                        resetGame();
+                        gameState = GameState.PLAY;
+                    }
+                    keyHandler.clearJustPressed();
+                }
+                if (keyHandler.newGameJustPressed) { // Restart
+                    resetGame();
+                    gameState = GameState.TITLE;
                     keyHandler.clearJustPressed();
                 }
                 break;
@@ -250,7 +287,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    private void resetGame() {
+    public void resetGame() {
+        playTimeTicks = 0;
         setupGame();
         gameState = GameState.TITLE;
     }

@@ -7,6 +7,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/core/GameState.java ^
   src/core/KeyHandler.java ^
   src/core/GamePanel.java ^
+  src/core/SaveManager.java ^
   src/core/Sound.java ^
   src/camera/Camera.java ^
   src/tile/Tile.java ^
@@ -20,6 +21,8 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/entity/enemy/Skeleton.java ^
   src/entity/enemy/DarkKnight.java ^
   src/entity/enemy/Samurai.java ^
+  src/entity/enemy/Ninja.java ^
+  src/entity/enemy/SunGuardian.java ^
   src/object/SuperObject.java ^
   src/object/OBJ_Sword.java ^
   src/object/OBJ_Shield.java ^
@@ -27,6 +30,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/object/OBJ_Chest.java ^
   src/object/OBJ_House.java ^
   src/object/OBJ_Church.java ^
+  src/object/OBJ_CrystalGate.java ^
   src/combat/AttackHitbox.java ^
   src/combat/DamageNumber.java ^
   src/combat/Projectile.java ^
