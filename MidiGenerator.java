@@ -8,10 +8,22 @@ public class MidiGenerator {
             File outDir = new File("src/res/sound");
             if (!outDir.exists()) outDir.mkdirs();
 
-            createVillageMusic(new File(outDir, "village.mid"));
-            createCaveMusic(new File(outDir, "cave.mid"));
-            createSavannahMusic(new File(outDir, "savannah.mid"));
-            createForestMusic(new File(outDir, "forest.mid"));
+            System.out.println("Creating village...");
+createVillageMusic(new File(outDir, "village.mid"));
+
+System.out.println("Creating cave...");
+createCaveMusic(new File(outDir, "cave.mid"));
+
+System.out.println("Creating savannah...");
+createSavannahMusic(new File(outDir, "savannah.mid"));
+
+System.out.println("Creating forest...");
+createForestMusic(new File(outDir, "forest.mid"));
+
+System.out.println("Creating ancient ruins...");
+createAncientRuinsMusic(new File(outDir, "ancient_ruins.mid"));
+
+System.out.println("Done!");
             
             System.out.println("MIDI files generated successfully!");
         } catch (Exception e) {
@@ -177,4 +189,57 @@ public class MidiGenerator {
         }
         MidiSystem.write(s, 1, out);
     }
+
+private static void createAncientRuinsMusic(File out) throws Exception {
+    Sequence s = new Sequence(Sequence.PPQ, 24);
+    Track t = s.createTrack();
+
+    // Choir Pad
+    t.add(new MidiEvent(
+            new ShortMessage(ShortMessage.PROGRAM_CHANGE, 0, 91, 0), 0));
+
+    // Tubular Bells
+    t.add(new MidiEvent(
+            new ShortMessage(ShortMessage.PROGRAM_CHANGE, 1, 14, 0), 0));
+
+    // Choir melody
+    int[] melody = {
+            62, 65, 69,
+            70, 69, 65,
+            62, 57,
+            60, 62, 65,
+            69, 65, 62
+    };
+
+    int tick = 0;
+
+    for (int note : melody) {
+        t.add(new MidiEvent(
+                new ShortMessage(ShortMessage.NOTE_ON, 0, note, 70), tick));
+
+        t.add(new MidiEvent(
+                new ShortMessage(ShortMessage.NOTE_OFF, 0, note, 0),
+                tick + 70));
+
+        tick += 72;
+    }
+
+    // Bell accents
+    int[] bells = {74, 77, 74, 81};
+
+    tick = 0;
+
+    for (int note : bells) {
+        t.add(new MidiEvent(
+                new ShortMessage(ShortMessage.NOTE_ON, 1, note, 80), tick));
+
+        t.add(new MidiEvent(
+                new ShortMessage(ShortMessage.NOTE_OFF, 1, note, 0),
+                tick + 20));
+
+        tick += 288;
+    }
+
+    MidiSystem.write(s, 1, out);
+ }
 }

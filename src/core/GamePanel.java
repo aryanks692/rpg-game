@@ -93,7 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
         sound.loadTrack("Great Savannah", "/res/sound/savannah.mid");
         sound.loadTrack("Golden Meadows", "/res/sound/village.mid"); // Fallback
         sound.loadTrack("Crystal Caves", "/res/sound/cave.mid");
-        sound.loadTrack("Ancient Ruins", "/res/sound/cave.mid"); // Fallback
+        sound.loadTrack("Ancient Ruins", "/res/sound/ancient_ruins.mid");
         
         sound.play("Verdant Village");
     }
