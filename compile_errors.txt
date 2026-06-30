@@ -1,0 +1,46 @@
+﻿javac : 
+src\ui\UI.java:87: error: 
+cannot find symbol
+At line:1 char:1
++ javac -d out 
+--source-path src 
+-encoding UTF-8 
+src/main/GameLauncher. ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (s  
+  rc\ui\UI.java:...not    
+ find symbol:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+            
+g2.fillTriangle(tx, 
+gp.screenHeight - 100, tx 
++ 30, gp.screenHeight, tx 
+- 30, gp.screenHeight);
+              ^
+  symbol:   method fillTri
+angle(int,int,int,int,int,
+int)
+  location: variable g2 
+of type Graphics2D
+src\ui\UI.java:88: error: 
+cannot find symbol
+            
+g2.fillTriangle(tx + 5, 
+gp.screenHeight - 130, tx 
++ 25, gp.screenHeight - 
+90, tx - 15, 
+gp.screenHeight - 90);
+              ^
+  symbol:   method fillTri
+angle(int,int,int,int,int,
+int)
+  location: variable g2 
+of type Graphics2D
+2 errors
