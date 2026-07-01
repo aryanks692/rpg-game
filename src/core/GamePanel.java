@@ -88,6 +88,7 @@ public class GamePanel extends JPanel implements Runnable {
         assetSetter.setupObjects();
         
         sound = new Sound();
+        sound.loadTrack("Title Theme", "/res/sound/title.mid");
         sound.loadTrack("Verdant Village", "/res/sound/village.mid");
         sound.loadTrack("Darkwood Forest", "/res/sound/forest.mid");
         sound.loadTrack("Great Savannah", "/res/sound/savannah.mid");
@@ -95,7 +96,7 @@ public class GamePanel extends JPanel implements Runnable {
         sound.loadTrack("Crystal Caves", "/res/sound/cave.mid");
         sound.loadTrack("Ancient Ruins", "/res/sound/ancient_ruins.mid");
         
-        sound.play("Verdant Village");
+        sound.play("Title Theme");
     }
 
     public void startGameThread() {

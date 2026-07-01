@@ -397,7 +397,9 @@ public class Player extends Entity {
             else zone = "Ancient Ruins";
         }
 
-        if (!zone.equals(currentZone)) {
+        boolean musicNotPlaying = gp.sound != null && !zone.equals(gp.sound.getCurrentTrack());
+
+        if (!zone.equals(currentZone) || musicNotPlaying) {
             currentZone = zone;
             gp.questManager.onZoneEntered(zone);
             if (gp.sound != null) {

@@ -56,4 +56,8 @@ public class Sound {
             currentTrack = null;
         }
     }
+
+    public String getCurrentTrack() {
+        return currentTrack;
+    }
 }
