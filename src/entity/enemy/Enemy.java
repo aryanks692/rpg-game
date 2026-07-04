@@ -36,23 +36,47 @@ public abstract class Enemy extends Entity {
     // Boss properties
     public boolean isBoss = false;
     public boolean dialogueCompleted = false;
+    protected int homeX;
+protected int homeY;
+
+// Maximum distance enemy can move away from spawn
+protected int roamRadius;
 
     protected BufferedImage[] idleFrames = new BufferedImage[2];
     protected BufferedImage[] attackFrames = new BufferedImage[2];
 
     public Enemy(GamePanel gp, int worldX, int worldY, int aggroRange) {
-        super(gp);
-        this.worldX = worldX;
-        this.worldY = worldY;
-        this.aggroRange = aggroRange;
-        this.width = gp.tileSize;
-        this.height = gp.tileSize;
-        collisionBox = new Rectangle(8, 16, 32, 28);
-        invincibleDuration = 30;
-    }
+    super(gp);
+
+    this.worldX = worldX;
+    this.worldY = worldY;
+
+    this.homeX = worldX;
+    this.homeY = worldY;
+
+    this.roamRadius = gp.tileSize * 8;
+
+    this.aggroRange = aggroRange;
+    this.width = gp.tileSize;
+    this.height = gp.tileSize;
+
+    collisionBox = new Rectangle(8, 16, 32, 28);
+    invincibleDuration = 30;
+}
+    protected boolean insideHomeArea(int x, int y) {
+
+    int dx = x - homeX;
+    int dy = y - homeY;
+
+    return dx * dx + dy * dy <= roamRadius * roamRadius;
+}
 
     @Override
     public void update() {
+        Player player = gp.player;
+        if (!insideHomeArea(player.worldX, player.worldY)) {
+    aiState = State.PATROL;
+}
         if (!alive) {
             deathAlpha -= 0.03f;
             if (deathAlpha <= 0) readyToRemove = true;
@@ -128,7 +152,7 @@ public abstract class Enemy extends Entity {
                 case "right": nextX += 1; break;
             }
             // Fix original logic and add village check
-            if (!isVillageRegion(nextX, nextY)) {
+            if (!isVillageRegion(nextX, nextY)&& insideHomeArea(nextX, nextY)) {
                 worldX = nextX;
                 worldY = nextY;
             } else {
@@ -151,14 +175,18 @@ public abstract class Enemy extends Entity {
 
         // Move X
         int oldX = worldX;
-        worldX += mx;
+        if (insideHomeArea(worldX + mx, worldY)) {
+    worldX += mx;
+} 
         collisionBox = new Rectangle(8, 16, 32, 28);
         gp.collisionChecker.checkTile(this);
         if (collisionOn || isVillageRegion(worldX, worldY)) worldX = oldX;
 
         // Move Y
         int oldY = worldY;
-        worldY += my;
+        if (insideHomeArea(worldX, worldY + my)) {
+    worldY += my;
+}
         gp.collisionChecker.checkTile(this);
         if (collisionOn || isVillageRegion(worldX, worldY)) worldY = oldY;
 
