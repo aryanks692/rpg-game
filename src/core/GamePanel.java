@@ -66,6 +66,9 @@ public class GamePanel extends JPanel implements Runnable {
     // Play time
     public long playTimeTicks = 0;
     public int currentSaveSlot = 0; // 0 = Auto-save, 1-4 = Manual
+      // Map transition
+    public int currentMap = 0; // 0 = Overworld, 1 = Dance Club Interior
+    public final int maxMap = 2;
 
     public GamePanel() {
         setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -99,6 +102,17 @@ public class GamePanel extends JPanel implements Runnable {
         sound.loadTrack("Ancient Ruins", "/res/sound/ancient_ruins.mid");
         
         sound.play("Title Theme");
+    }
+      public void enterDanceClub() {
+        player.worldX = tileSize * 88; // Center of dance floor
+        player.worldY = tileSize * 93; // Safe distance above exit door
+        ui.showNotification("Entered the Wild West Dance Club!");
+    }
+
+    public void exitDanceClub() {
+        player.worldX = tileSize * 85; // Outside club door in Dusty Gulch
+        player.worldY = tileSize * 11; // Street level
+        ui.showNotification("Exited to Dusty Gulch.");
     }
 
     public void startGameThread() {

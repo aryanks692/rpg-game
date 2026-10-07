@@ -13,10 +13,19 @@ public class ImageNPC extends NPC {
     private int danceYOffset = 0;
 
     public ImageNPC(GamePanel gp, String name, String imagePath, int worldX, int worldY, String... dialogues) {
+        this(gp, name, imagePath, null, worldX, worldY, dialogues);
+    }
+
+    public ImageNPC(GamePanel gp, String name, String imagePath, String portraitPath, int worldX, int worldY, String... dialogues) {
         super(gp, name, "image_based", worldX, worldY, dialogues);
         this.imagePath = imagePath;
-        // The super constructor calls buildSprites() which draws the vector shapes.
-        // We immediately overwrite those arrays by loading the actual image tile sheet.
+        if (portraitPath != null) {
+            try {
+                this.portraitImage = ImageIO.read(new File(portraitPath));
+            } catch (Exception e) {
+                System.err.println("Failed to load portrait: " + portraitPath);
+            }
+        }
         loadSpriteSheet();
     }
 
@@ -31,54 +40,29 @@ public class ImageNPC extends NPC {
             g2d.drawImage(originalSheet, 0, 0, null);
             g2d.dispose();
             
-            // Remove the white background algorithmically
-            removeWhiteBackground(sheet);
+            // Remove green chromakey and white background
+            removeBackgrounds(sheet);
             
-            // To prevent "double-layer" sprites from uneven AI-generated grids, 
-            // we dynamically isolate the FIRST character on the top row.
-            int height = sheet.getHeight();
-            int width = sheet.getWidth();
-            int rowHeight = height / 4;
-            
-            int startX = -1;
-            int endX = -1;
-            
-            for (int x = 0; x < width; x++) {
-                boolean hasPixel = false;
-                for (int y = 0; y < rowHeight; y++) {
+            // Auto crop / detect the bounding box of the single dancer character
+            int minX = sheet.getWidth(), minY = sheet.getHeight(), maxX = 0, maxY = 0;
+            for (int y = 0; y < sheet.getHeight(); y++) {
+                for (int x = 0; x < sheet.getWidth(); x++) {
                     int alpha = (sheet.getRGB(x, y) >> 24) & 0xFF;
                     if (alpha > 0) {
-                        hasPixel = true;
-                        break;
-                    }
-                }
-                
-                if (hasPixel && startX == -1) {
-                    startX = x;
-                } else if (!hasPixel && startX != -1 && endX == -1) {
-                    // Check ahead 10 pixels to confirm it's a real gap between different character draws
-                    boolean isRealGap = true;
-                    for (int ahead = 1; ahead < 10; ahead++) {
-                        if (x + ahead >= width) break;
-                        for (int y = 0; y < rowHeight; y++) {
-                            int alpha = (sheet.getRGB(x + ahead, y) >> 24) & 0xFF;
-                            if (alpha > 0) {
-                                isRealGap = false;
-                                break;
-                            }
-                        }
-                        if (!isRealGap) break;
-                    }
-                    if (isRealGap) {
-                        endX = x;
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
                     }
                 }
             }
-            
-            if (startX != -1 && endX == -1) endX = width;
-            if (startX == -1) { startX = 0; endX = width / 4; } // Fallback
-            
-            BufferedImage singleFrame = sheet.getSubimage(startX, 0, endX - startX, rowHeight);
+
+            BufferedImage singleFrame;
+            if (maxX > minX && maxY > minY) {
+                singleFrame = sheet.getSubimage(minX, minY, maxX - minX + 1, maxY - minY + 1);
+            } else {
+                singleFrame = sheet;
+            }
 
             for (int i = 0; i < 4; i++) {
                 walkDown[i]  = singleFrame;
@@ -94,7 +78,7 @@ public class ImageNPC extends NPC {
         }
     }
 
-    private void removeWhiteBackground(BufferedImage img) {
+    private void removeBackgrounds(BufferedImage img) {
         int width = img.getWidth();
         int height = img.getHeight();
         
@@ -105,9 +89,17 @@ public class ImageNPC extends NPC {
                 int g = (argb >> 8) & 0xFF;
                 int b = argb & 0xFF;
                 
-                // If the pixel is very close to pure white, make it transparent
-                if (r > 235 && g > 235 && b > 235) {
-                    img.setRGB(x, y, 0x00000000); // Fully transparent
+                // Pure Green / Chroma key removal
+                if (g > 180 && r < 120 && b < 120) {
+                    img.setRGB(x, y, 0x00000000);
+                }
+                // Checkerboard / Pure White background removal
+                else if (r > 230 && g > 230 && b > 230) {
+                    img.setRGB(x, y, 0x00000000);
+                }
+                // Grey checkerboard squares removal
+                else if (r > 195 && g > 195 && b > 195 && Math.abs(r - g) < 5 && Math.abs(g - b) < 5) {
+                    img.setRGB(x, y, 0x00000000);
                 }
             }
         }

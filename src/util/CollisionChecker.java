@@ -84,4 +84,42 @@ public class CollisionChecker {
         }
         return index;
     }
+        /**
+     * Checks if moving into a solid building or object (e.g. Dance Club, Saloon, Houses, Barrels).
+     * Returns the object index if hit, or -1 if no solid collision.
+     */
+    public int checkObject(Entity entity, boolean isPlayer) {
+        int index = -1;
+        if (gp.objects == null) return index;
+
+        Rectangle nextBox = new Rectangle(
+            entity.worldX + entity.collisionBox.x,
+            entity.worldY + entity.collisionBox.y,
+            entity.collisionBox.width,
+            entity.collisionBox.height
+        );
+
+        // Predict next position based on direction
+        switch (entity.direction) {
+            case "up":    nextBox.y -= entity.speed; break;
+            case "down":  nextBox.y += entity.speed; break;
+            case "left":  nextBox.x -= entity.speed; break;
+            case "right": nextBox.x += entity.speed; break;
+        }
+
+        for (int i = 0; i < gp.objects.length; i++) {
+            object.SuperObject obj = gp.objects[i];
+            if (obj == null || obj.pickedUp) continue;
+
+            // Only block solid objects (buildings, barrels, chests, etc. — ignore collectible floor items)
+            if (!(obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield)) {
+                if (nextBox.intersects(obj.getWorldCollisionBox())) {
+                    entity.collisionOn = true;
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    }
 }

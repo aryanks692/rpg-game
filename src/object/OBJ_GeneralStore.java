@@ -14,7 +14,7 @@ public class OBJ_GeneralStore extends SuperObject {
         pixelWidth = gp.tileSize * 3;
         pixelHeight = gp.tileSize * 3;
         
-        collisionBox = new Rectangle((pixelWidth / 2) - gp.tileSize/2, pixelHeight - gp.tileSize, gp.tileSize, gp.tileSize + 8);
+        collisionBox = new Rectangle(8, 12, pixelWidth - 16, pixelHeight - 16);
         createImage();
     }
 

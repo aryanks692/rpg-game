@@ -62,19 +62,30 @@ public class DialogueUI {
         // Main panel
         UIPanel.drawPanel(g2, boxX, boxY, boxW, boxH);
 
-        // Portrait placeholder (coloured block with first letter)
+        // Portrait frame
         g2.setColor(new Color(30, 25, 60));
         g2.fillRoundRect(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8);
+        
+        if (entity.portraitImage != null) {
+            // Draw real photo portrait with clip to fit rounded box
+            Shape oldClip = g2.getClip();
+            g2.setClip(new java.awt.geom.RoundRectangle2D.Float(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8));
+            g2.drawImage(entity.portraitImage, boxX + 8, boxY + 8, portW, boxH - 16, null);
+            g2.setClip(oldClip);
+        } else {
+            // Letter placeholder fallback
+            g2.setFont(UIFonts.HEADING);
+            g2.setColor(UIConstants.COL_GOLD);
+            String letter = entity.name.isEmpty() ? "?" : entity.name.substring(0, 1);
+            FontMetrics fmP = g2.getFontMetrics();
+            g2.drawString(letter,
+                           boxX + 8 + portW / 2 - fmP.stringWidth(letter) / 2,
+                           boxY + 8 + (boxH - 16) / 2 + fmP.getAscent() / 2);
+        }
+
         g2.setStroke(UIConstants.STROKE_BORDER);
         g2.setColor(UIConstants.COL_PANEL_BORDER_DIM);
         g2.drawRoundRect(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8);
-        g2.setFont(UIFonts.HEADING);
-        g2.setColor(UIConstants.COL_GOLD);
-        String letter = entity.name.isEmpty() ? "?" : entity.name.substring(0, 1);
-        FontMetrics fmP = g2.getFontMetrics();
-        g2.drawString(letter,
-                       boxX + 8 + portW / 2 - fmP.stringWidth(letter) / 2,
-                       boxY + 8 + (boxH - 16) / 2 + fmP.getAscent() / 2);
 
         // Entity name
         g2.setFont(UIFonts.BODY_B);

@@ -215,7 +215,7 @@ public class Player extends Entity {
         detectPickups();
         updateZone();
     }
-
+    
     private void handleInput() {
         // Pause toggle
         if (key.pauseJustPressed) {
@@ -290,6 +290,7 @@ public class Player extends Entity {
 
         if (moved && !attacking) {
             gp.collisionChecker.checkTile(this);
+            gp.collisionChecker.checkObject(this, true);
             if (!collisionOn) {
                 switch (direction) {
                     case "up":    worldY -= moveSpeed; break;
@@ -338,6 +339,14 @@ public class Player extends Entity {
     }
 
     private void checkInteract() {
+        // Check Dance Club exit door with [E]
+        int col = (worldX + width / 2) / gp.tileSize;
+        int row = (worldY + height / 2) / gp.tileSize;
+        if (col >= 86 && col <= 90 && row >= 96 && row <= 98) {
+            gp.exitDanceClub();
+            return;
+        }
+
         // Check NPC proximity
         if (gp.npcs != null) {
             Rectangle interactZone = new Rectangle(
@@ -399,7 +408,9 @@ public class Player extends Entity {
         String zone;
 
         // --- ZONE COORDINATES ---
-        if (row < 30) {
+        if (col >= 78 && col <= 98 && row >= 86 && row <= 99) {
+            zone = "Wild West Dance Club";
+        } else if (row < 30) {
             if (col >= 58) zone = "Dusty Gulch";
             else zone = "Great Savannah";
         } else if (row >= 30 && row < 39) {
@@ -418,7 +429,11 @@ public class Player extends Entity {
             currentZone = zone;
             gp.questManager.onZoneEntered(zone);
             if (gp.sound != null) {
-                gp.sound.play(zone);
+                if ("Wild West Dance Club".equals(zone)) {
+                    gp.sound.play("Dusty Gulch");
+                } else {
+                    gp.sound.play(zone);
+                }
             }
         }
     }
@@ -488,6 +503,17 @@ public class Player extends Entity {
             g2.setStroke(new BasicStroke(2));
             g2.drawRect(hb.box.x - gp.camera.x, hb.box.y - gp.camera.y, hb.box.width, hb.box.height);
             g2.setStroke(new BasicStroke(1));
+        }
+
+        // Draw [E] Exit prompt when standing near the club door inside
+        int c = (worldX + width / 2) / gp.tileSize;
+        int r = (worldY + height / 2) / gp.tileSize;
+        if (c >= 86 && c <= 90 && r >= 96 && r <= 98) {
+            g2.setColor(new Color(0, 0, 0, 180));
+            g2.fillRoundRect(screenX - 18, screenY - 22, 84, 18, 6, 6);
+            g2.setFont(new Font("Arial", Font.BOLD, 11));
+            g2.setColor(Color.YELLOW);
+            g2.drawString("[E] Exit Club", screenX - 12, screenY - 9);
         }
     }
 }

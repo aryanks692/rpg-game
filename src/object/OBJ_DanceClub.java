@@ -15,7 +15,7 @@ public class OBJ_DanceClub extends SuperObject {
         pixelWidth = gp.tileSize * 4;
         pixelHeight = gp.tileSize * 3;
         
-        collisionBox = new Rectangle((pixelWidth / 2) - gp.tileSize/2, pixelHeight - gp.tileSize, gp.tileSize, gp.tileSize + 8);
+        collisionBox = new Rectangle(8, 12, pixelWidth - 16, pixelHeight - 16);
         createImage();
     }
 
@@ -187,8 +187,8 @@ public class OBJ_DanceClub extends SuperObject {
         }
     }
 
-    @Override
+       @Override
     public void onPickup(entity.Player player) {
-        gp.ui.showNotification("The Wild West Dance Club & Cabaret!");
+        gp.enterDanceClub();
     }
 }

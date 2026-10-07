@@ -44,6 +44,7 @@ public abstract class Entity {
 
     // Current image to draw
     public BufferedImage image;
+    public BufferedImage portraitImage; // High-detail dialogue box portrait
 
     // Name and dialogue
     public String name = "";

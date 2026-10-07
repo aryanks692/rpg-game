@@ -55,6 +55,7 @@ public class AssetSetter {
                 gp,
                 "Katrina",
                 "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\dancer.png",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\dancer.png",
                 ts * 25,
                 ts * (15 + rowOff),
                 "(She moves closer, her voice low...)",
@@ -86,16 +87,29 @@ public class AssetSetter {
                 "Finest sarsaparilla and cold brews this side of the Great Savannah.",
                 "Word is the Sun Guardian protects the sacred golden temple to the west.");
 
-        gp.npcs[9] = new NPC(gp, "Lola", "dancer",
-                ts * 85, ts * 13,
-                "Welcome darling, to the Wild West Dance Club!",
-                "Hear the banjo, feel the rhythm... dance your troubles away!",
-                "Even the toughest outlaws tip their hats when our music plays.");
+        // Lola — Dancing on Main Stage inside the Club (Image-based HD Belly Dancer)
+        gp.npcs[9] = new entity.ImageNPC(
+                gp,
+                "Lola",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\white_dancer_clean.png",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\lola_real_portrait.png",
+                ts * 88,
+                ts * 91,
+                "Welcome to the Honky-Tonk Cabaret, handsome!",
+                "Hear that rhythm? Watch me move on the main stage!",
+                "If you enjoy the dance, don't forget to tip your favorite dancer!");
 
-        gp.npcs[10] = new NPC(gp, "Daisy", "merchant",
-                ts * 92, ts * 13,
-                "Howdy! Dusty Gulch General Store is open for business.",
-                "Stock up on supplies and health potions before riding into the canyon!");
+        // Roxy — VIP Lounge Dancer
+        gp.npcs[10] = new entity.ImageNPC(
+                gp,
+                "Roxy",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\white_dancer_clean.png",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\lola_real_portrait.png",
+                ts * 94,
+                ts * 92,
+                "Hey there, cowboy... looking for a private VIP show?",
+                "Dusty Gulch gets wild after midnight!",
+                "Stay as long as you like, honey.");
 
         gp.npcs[11] = new NPC(gp, "Prospector Pete", "cowboy",
                 ts * 94, ts * 21,
@@ -115,15 +129,13 @@ public class AssetSetter {
         gp.enemies[26] = new Skeleton(gp, ts * 50, ts * 20);
         // Savannah boss location (Top Center)
         gp.enemies[27] = new SunGuardian(gp, ts * 35, ts * 15);
-
-        // --- Wild West Badlands & Outlaws ---
-        gp.enemies[28] = new Outlaw(gp, ts * 62, ts * 7);
-        gp.enemies[29] = new Outlaw(gp, ts * 70, ts * 22);
-        gp.enemies[30] = new Outlaw(gp, ts * 80, ts * 25);
-        gp.enemies[31] = new Outlaw(gp, ts * 94, ts * 6);
-        gp.enemies[32] = new Outlaw(gp, ts * 58, ts * 20);
-        gp.enemies[33] = new Outlaw(gp, ts * 65, ts * 26);
-        gp.enemies[34] = new Slime(gp, ts * 52, ts * 10);
+        gp.enemies[28] = new Outlaw(gp, ts * 30, ts * 15);
+        gp.enemies[29] = new Outlaw(gp, ts * 30, ts * 22);
+        gp.enemies[30] = new Outlaw(gp, ts * 30, ts * 25);
+        gp.enemies[31] = new Outlaw(gp, ts * 30, ts * 6);
+        gp.enemies[32] = new Outlaw(gp, ts * 45, ts * 20);
+        gp.enemies[33] = new Outlaw(gp, ts * 50, ts * 26);
+        gp.enemies[34] = new Slime(gp, ts * 30, ts * 10);
         gp.enemies[35] = new Skeleton(gp, ts * 54, ts * 22);
 
         // Slimes near lake (Shifted)
@@ -147,16 +159,16 @@ public class AssetSetter {
         gp.enemies[13] = new Skeleton(gp, ts * 7, ts * (38 + rowOff));
         gp.enemies[14] = new Skeleton(gp, ts * 15, ts * (34 + rowOff));
 
-        // Ancient Ruins area (Shifted)
-        gp.enemies[15] = new Skeleton(gp, ts * 32, ts * (30 + rowOff));
-        gp.enemies[16] = new Skeleton(gp, ts * 36, ts * (34 + rowOff));
-        gp.enemies[17] = new Skeleton(gp, ts * 40, ts * (28 + rowOff));
-        gp.enemies[18] = new Ninja(gp, ts * 30, ts * (35 + rowOff));
-        gp.enemies[19] = new Slime(gp, ts * 34, ts * (36 + rowOff));
+         // Ancient Ruins area (Shifted to the right side)
+        gp.enemies[15] = new Skeleton(gp, ts * 48, ts * (30 + rowOff));
+        gp.enemies[16] = new Skeleton(gp, ts * 52, ts * (34 + rowOff));
+        gp.enemies[17] = new Skeleton(gp, ts * 54, ts * (28 + rowOff));
+        gp.enemies[18] = new Ninja(gp, ts * 50, ts * (35 + rowOff));
+        gp.enemies[19] = new Slime(gp,ts * 55, ts * (36 + rowOff));
 
-        // Samurai guards (Shifted)
-        gp.enemies[20] = new Samurai(gp, ts * 36, ts * (30 + rowOff));
-        gp.enemies[21] = new Samurai(gp, ts * 33, ts * (38 + rowOff));
+        // Samurai guards (Shifted to the right side)
+        gp.enemies[20] = new Samurai(gp, ts * 50, ts * (30 + rowOff));
+        gp.enemies[21] = new Samurai(gp, ts * 54, ts * (38 + rowOff));
 
         // Crystal Cave Guardian (Shifted)
         gp.enemies[22] = new DarkKnight(gp, ts * 18, ts * (52 + rowOff));

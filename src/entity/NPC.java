@@ -36,7 +36,12 @@ public class NPC extends Entity {
         else if ("bartender".equals(role)) bodyColor = new Color(230, 225, 210);
         else if ("cowboy".equals(role))    bodyColor = new Color(160, 110, 60);
         else                               bodyColor = new Color(180, 70, 70);
-        skinColor = new Color(255, 210, 170);
+
+        if ("dancer".equals(role)) {
+            skinColor = new Color(245, 220, 200); // White/fair skin tone
+        } else {
+            skinColor = new Color(255, 210, 170);
+        }
         buildSprites();
     }
 
@@ -65,12 +70,52 @@ public class NPC extends Entity {
         g.fillRoundRect(12, ts - 14 + legOffset, 10, 8, 3, 3);
         g.fillRoundRect(26, ts - 14 - legOffset, 10, 8, 3, 3);
 
-        // --- BODY ---
-        g.setColor(bodyColor);
-        g.fillRoundRect(10, 20, 28, 20, 6, 6);
-        // Belt/waist shadow
-        g.setColor(new Color(0, 0, 0, 80));
-        g.fillRect(10, 36, 28, 4);
+        // --- BODY / DRESS ---
+        if ("dancer".equals(role)) {
+            // White/light skin tone
+            skinColor = new Color(245, 220, 200);
+
+            // --- Crop Top ---
+            g.setColor(new Color(25, 15, 20)); // Black crop top
+            g.fillRoundRect(13, 20, 22, 10, 4, 4);
+
+            // Red/pink trim
+            g.setColor(new Color(220, 35, 85));
+            g.fillRect(14, 21, 20, 2);
+            g.fillRect(16, 28, 16, 2);
+
+            // Small center gold detail
+            g.setColor(new Color(255, 215, 80));
+            g.fillRect(22, 23, 4, 2);
+
+            // --- Bare Midriff ---
+            g.setColor(skinColor);
+            g.fillRect(14, 30, 20, 5);
+
+            // --- Short dance skirt / bikini-style bottom ---
+            g.setColor(new Color(220, 35, 85));
+            g.fillPolygon(
+                new int[]{12, 36, 39, 9},
+                new int[]{34, 34, 41, 41},
+                4
+            );
+
+            // Black waistband
+            g.setColor(new Color(25, 15, 20));
+            g.fillRect(13, 34, 22, 3);
+
+            // Pink highlights
+            g.setColor(new Color(255, 80, 140));
+            g.fillRect(17, 38, 5, 2);
+            g.fillRect(26, 38, 5, 2);
+
+        } else {
+            g.setColor(bodyColor);
+            g.fillRoundRect(10, 20, 28, 20, 6, 6);
+            // Belt/waist shadow
+            g.setColor(new Color(0, 0, 0, 80));
+            g.fillRect(10, 36, 28, 4);
+        }
 
         // Bartender vest & apron
         if ("bartender".equals(role)) {
@@ -82,15 +127,27 @@ public class NPC extends Entity {
         }
 
         // --- ARMS ---
-        g.setColor(bodyColor);
-        g.fillRoundRect(4, 22 + legOffset / 2, 8, 12, 4, 4);
-        g.fillRoundRect(36, 22 - legOffset / 2, 8, 12, 4, 4);
-        
-        // Arm shading gradient
-        GradientPaint armShade = new GradientPaint(0, 30, new Color(0,0,0,0), 0, 34, new Color(0,0,0,100));
-        g.setPaint(armShade);
-        g.fillRoundRect(4, 22 + legOffset / 2, 8, 12, 4, 4);
-        g.fillRoundRect(36, 22 - legOffset / 2, 8, 12, 4, 4);
+        if ("dancer".equals(role)) {
+            // Bare white/light skin arms
+            g.setColor(skinColor);
+            g.fillRoundRect(5, 20 + legOffset / 2, 7, 12, 3, 3);
+            g.fillRoundRect(36, 20 - legOffset / 2, 7, 12, 3, 3);
+
+            // Long evening gloves
+            g.setColor(new Color(30, 15, 25));
+            g.fillRoundRect(5, 27 + legOffset / 2, 7, 6, 2, 2);
+            g.fillRoundRect(36, 27 - legOffset / 2, 7, 6, 2, 2);
+        } else {
+            g.setColor(bodyColor);
+            g.fillRoundRect(4, 22 + legOffset / 2, 8, 12, 4, 4);
+            g.fillRoundRect(36, 22 - legOffset / 2, 8, 12, 4, 4);
+            
+            // Arm shading gradient
+            GradientPaint armShade = new GradientPaint(0, 30, new Color(0,0,0,0), 0, 34, new Color(0,0,0,100));
+            g.setPaint(armShade);
+            g.fillRoundRect(4, 22 + legOffset / 2, 8, 12, 4, 4);
+            g.fillRoundRect(36, 22 - legOffset / 2, 8, 12, 4, 4);
+        }
 
         // --- HEAD ---
         g.setColor(skinColor);
@@ -100,17 +157,39 @@ public class NPC extends Entity {
         g.fillArc(12, 8, 24, 20, 180, 180); 
 
         // --- HAIR ---
-        if ("dancer".equals(role)) g.setColor(new Color(40, 25, 20));
+        if ("dancer".equals(role)) {
+            // Long flowing styled hair
+            g.setColor(new Color(55, 25, 20));
+            g.fillOval(10, 5, 28, 18);
+            // Long side hair locks
+            g.fillRoundRect(8, 12, 7, 20, 4, 4);
+            g.fillRoundRect(33, 12, 7, 20, 4, 4);
+        }
         else if ("elder".equals(role)) g.setColor(Color.LIGHT_GRAY);
         else g.setColor(new Color(100, 60, 20));
-        g.fillOval(12, 6, 24, 14);
+        if (!"dancer".equals(role)) g.fillOval(12, 6, 24, 14);
 
-        // --- EYES ---
+        // --- EYES & MAKEUP ---
         if (!dir.equals("up")) {
-            g.setColor(Color.DARK_GRAY);
             int eyeOff = dir.equals("left") ? -3 : (dir.equals("right") ? 3 : 0);
-            g.fillOval(16 + eyeOff, 17, 3, 4);
-            g.fillOval(28 + eyeOff, 17, 3, 4);
+            if ("dancer".equals(role)) {
+                // Feminine eyes with mascara & blush
+                g.setColor(new Color(255, 140, 160, 150)); // Blush
+                g.fillOval(14 + eyeOff, 20, 4, 3);
+                g.fillOval(30 + eyeOff, 20, 4, 3);
+                g.setColor(Color.BLACK); // Mascara lashes
+                g.fillOval(16 + eyeOff, 15, 4, 4);
+                g.fillOval(28 + eyeOff, 15, 4, 4);
+                g.setColor(new Color(80, 180, 255)); // Blue/Hazel irises
+                g.fillOval(17 + eyeOff, 16, 2, 2);
+                g.fillOval(29 + eyeOff, 16, 2, 2);
+                g.setColor(new Color(230, 40, 70)); // Red lipstick
+                g.fillRect(23 + eyeOff, 23, 3, 2);
+            } else {
+                g.setColor(Color.DARK_GRAY);
+                g.fillOval(16 + eyeOff, 17, 3, 4);
+                g.fillOval(28 + eyeOff, 17, 3, 4);
+            }
         }
 
         // --- ROLE SPECIFIC ACCESSORIES ---
@@ -188,6 +267,7 @@ public class NPC extends Entity {
             String[] dirs = { "up", "down", "left", "right" };
             direction = dirs[wanderDir];
             gp.collisionChecker.checkTile(this);
+            gp.collisionChecker.checkObject(this, false); // <-- ADD THIS LINE
             if (!collisionOn) {
                 switch (direction) {
                     case "up":    worldY -= speed; break;

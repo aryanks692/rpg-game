@@ -511,6 +511,48 @@ public class TileManager {
         for (int c = 9; c < W-2; c++) for (int r = 28+rowOff; r <= 28+rowOff; r++) mapTileNum[c][r] = GRASS;
         for (int r = 26+rowOff; r < 38+rowOff; r++) mapTileNum[28][r] = PATH;
         for (int c = 9;  c < 45; c++) mapTileNum[c][37+rowOff]  = PATH;
+
+        // --- 6. GTA-STYLE CABARET & DANCE CLUB INTERIOR (Cols 80-96, Rows 88-98) ---
+        for (int c = 80; c <= 96; c++) {
+            for (int r = 88; r <= 98; r++) {
+                if (c == 80 || c == 96 || r == 88 || r == 98) {
+                    mapTileNum[c][r] = WALL; // Perimeter walls
+                } else {
+                    mapTileNum[c][r] = RED_SAND; // Red velvet carpet
+                }
+            }
+        }
+
+        // Elevated Main Dance Stage in Center (Cols 86-90, Rows 90-93)
+        for (int c = 86; c <= 90; c++) {
+            for (int r = 90; r <= 93; r++) {
+                mapTileNum[c][r] = WOOD_PLANK; // Wooden stage
+            }
+        }
+
+        // Dance Stage Poles
+        mapTileNum[87][91] = HITCHING_POST;
+        mapTileNum[89][91] = HITCHING_POST;
+
+        // Long Bar Counter on Left (Cols 82-83, Rows 90-94)
+        for (int r = 90; r <= 94; r++) {
+            mapTileNum[82][r] = STONE;
+        }
+
+        // VIP Lounge Boardwalks on Right (Cols 93-95, Rows 90-94)
+        for (int c = 93; c <= 95; c++) {
+            for (int r = 90; r <= 94; r++) {
+                mapTileNum[c][r] = WOOD_PLANK;
+            }
+        }
+
+        // Entrance / Exit Carpet Walkway & Door
+        for (int r = 94; r <= 97; r++) {
+            mapTileNum[88][r] = PATH;
+        }
+        mapTileNum[87][97] = PATH;
+        mapTileNum[89][97] = PATH;
+        mapTileNum[88][98] = PATH; // Exit doorway mat
     }
 
     private void paintZone(int c1, int r1, int c2, int r2, int mainTile, int bg1, int bg2) {
