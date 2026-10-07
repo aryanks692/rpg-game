@@ -52,26 +52,52 @@ public class DialogueUI {
         String cur = entity.getCurrentDialogue();
         startDialogue(cur);
 
-        int boxH   = 120;
+        int boxH   = 124;
         int boxW   = gp.screenWidth - 40;
         int boxX   = 20;
         int boxY   = gp.screenHeight - boxH - 18;
-        int portW  = 68;
-        int textX  = boxX + portW + 20;
+        int portW  = 96;
+        int portH  = boxH - 16;
+        int frameX = boxX + 8;
+        int frameY = boxY + 8;
+        int textX  = boxX + portW + 22;
 
         // Main panel
         UIPanel.drawPanel(g2, boxX, boxY, boxW, boxH);
 
-        // Portrait frame
-        g2.setColor(new Color(30, 25, 60));
-        g2.fillRoundRect(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8);
+        // Portrait frame background
+        g2.setColor(new Color(25, 20, 50));
+        g2.fillRoundRect(frameX, frameY, portW, portH, 8, 8);
         
         if (entity.portraitImage != null) {
-            // Draw real photo portrait with clip to fit rounded box
+            // Draw photo portrait with high quality bicubic interpolation and aspect-ratio preservation
+            Object oldInterp = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+            Object oldRender = g2.getRenderingHint(RenderingHints.KEY_RENDERING);
+            Object oldAlpha  = g2.getRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
             Shape oldClip = g2.getClip();
-            g2.setClip(new java.awt.geom.RoundRectangle2D.Float(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8));
-            g2.drawImage(entity.portraitImage, boxX + 8, boxY + 8, portW, boxH - 16, null);
+            g2.setClip(new java.awt.geom.RoundRectangle2D.Float(frameX, frameY, portW, portH, 8, 8));
+
+            int imgW = entity.portraitImage.getWidth();
+            int imgH = entity.portraitImage.getHeight();
+            // Scale to fill the portrait frame without distortion (cover)
+            double scale = Math.max((double) portW / imgW, (double) portH / imgH);
+            int drawW = (int) Math.round(imgW * scale);
+            int drawH = (int) Math.round(imgH * scale);
+            int drawX = frameX + (portW - drawW) / 2;
+            // For tall character portraits, anchor to the top so the face/head is always fully visible
+            int drawY = (drawH > portH) ? frameY : frameY + (portH - drawH) / 2;
+
+            g2.drawImage(entity.portraitImage, drawX, drawY, drawW, drawH, null);
             g2.setClip(oldClip);
+
+            // Restore hints
+            if (oldInterp != null) g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterp);
+            if (oldRender != null) g2.setRenderingHint(RenderingHints.KEY_RENDERING, oldRender);
+            if (oldAlpha != null)  g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, oldAlpha);
         } else {
             // Letter placeholder fallback
             g2.setFont(UIFonts.HEADING);
@@ -79,25 +105,25 @@ public class DialogueUI {
             String letter = entity.name.isEmpty() ? "?" : entity.name.substring(0, 1);
             FontMetrics fmP = g2.getFontMetrics();
             g2.drawString(letter,
-                           boxX + 8 + portW / 2 - fmP.stringWidth(letter) / 2,
-                           boxY + 8 + (boxH - 16) / 2 + fmP.getAscent() / 2);
+                           frameX + portW / 2 - fmP.stringWidth(letter) / 2,
+                           frameY + portH / 2 + fmP.getAscent() / 2);
         }
 
         g2.setStroke(UIConstants.STROKE_BORDER);
         g2.setColor(UIConstants.COL_PANEL_BORDER_DIM);
-        g2.drawRoundRect(boxX + 8, boxY + 8, portW, boxH - 16, 8, 8);
+        g2.drawRoundRect(frameX, frameY, portW, portH, 8, 8);
 
         // Entity name
         g2.setFont(UIFonts.BODY_B);
         UIPanel.drawShadowText(g2, entity.name, UIFonts.BODY_B, UIConstants.COL_GOLD,
                                 textX, boxY + 20);
-        UIPanel.drawSeparator(g2, textX, boxY + 24, boxW - portW - 30);
+        UIPanel.drawSeparator(g2, textX, boxY + 24, boxW - portW - 38);
 
         // Typewriter text (word-wrapped)
         g2.setFont(UIFonts.BODY);
         g2.setColor(UIConstants.COL_TEXT_MAIN);
         String visible = fullText.substring(0, Math.min(charsRevealed, fullText.length()));
-        drawWrapped(g2, visible, textX, boxY + 42, boxW - portW - 34, 18);
+        drawWrapped(g2, visible, textX, boxY + 42, boxW - portW - 42, 18);
 
         // "Continue" prompt — flash when text is fully shown
         if (charsRevealed >= fullText.length() && (globalTimer / 22) % 2 == 0) {

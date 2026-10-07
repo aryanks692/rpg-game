@@ -54,8 +54,8 @@ public class AssetSetter {
         gp.npcs[5] = new entity.ImageNPC(
                 gp,
                 "Katrina",
-                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\dancer.png",
-                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\dancer.png",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\katrina_sprite.png",
+                "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\katrina_portrait.png",
                 ts * 25,
                 ts * (15 + rowOff),
                 "(She moves closer, her voice low...)",
