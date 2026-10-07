@@ -31,63 +31,135 @@ public class Skeleton extends Enemy {
         image = walkDown[0];
     }
 
-    private BufferedImage drawSkeleton(String dir, int frame) {
-        int ts = gp.tileSize;
-        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = img.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+  private BufferedImage drawSkeleton(String dir, int frame) {
 
-        Color bone = new Color(220, 215, 200);
-        Color shadow = new Color(160, 155, 140);
-        int legBob = (frame % 2 == 0) ? 2 : -2;
+    int ts = gp.tileSize;
 
-        // Legs
-        g.setColor(bone);
-        g.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.drawLine(16, ts - 10, 16, ts - 20 + legBob);
-        g.drawLine(32, ts - 10, 32, ts - 20 - legBob);
-        // Feet
-        g.fillOval(12, ts - 12 + legBob, 8, 5);
-        g.fillOval(28, ts - 12 - legBob, 8, 5);
+    BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = img.createGraphics();
 
-        // Pelvis
-        g.setColor(bone);
-        g.fillRoundRect(10, ts - 22, 28, 10, 5, 5);
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Spine
-        g.setColor(shadow);
-        g.fillRect(ts/2 - 3, 22, 6, 16);
-        // Ribs
-        g.setColor(bone);
-        for (int r = 0; r < 3; r++) {
-            int ry = 22 + r * 5;
-            g.drawLine(ts/2, ry, ts/2 - 10, ry + 3);
-            g.drawLine(ts/2, ry, ts/2 + 10, ry + 3);
-        }
+    Color bone = new Color(232,228,214);
+    Color darkBone = new Color(185,180,165);
+    Color outline = new Color(70,65,60);
 
-        // Arms
-        g.setColor(bone);
-        g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        int armSwing = (frame % 2 == 0) ? 4 : -4;
-        g.drawLine(10, 22, 4, 28 + armSwing);
-        g.drawLine(38, 22, 44, 28 - armSwing);
+    int walk = (frame % 2 == 0) ? 2 : -2;
 
-        // Skull
-        g.setColor(bone);
-        g.fillOval(13, 5, 22, 20);
-        // Jaw
-        g.fillRoundRect(15, 20, 18, 8, 4, 4);
-        // Eye sockets
-        g.setColor(new Color(20, 20, 40));
-        g.fillOval(16, 10, 7, 7);
-        g.fillOval(25, 10, 7, 7);
-        // Glowing eyes
-        g.setColor(new Color(80, 220, 80, 200));
-        g.fillOval(18, 12, 4, 4);
-        g.fillOval(27, 12, 4, 4);
+    //-------------------------
+    // SHADOW
+    //-------------------------
+    g.setColor(new Color(0,0,0,60));
+    g.fillOval(12,40,24,6);
 
-        g.setStroke(new BasicStroke(1));
-        g.dispose();
-        return img;
+    //-------------------------
+    // LEGS
+    //-------------------------
+    g.setColor(darkBone);
+
+    g.fillRoundRect(16,29,5,13+walk,3,3);
+    g.fillRoundRect(27,29,5,13-walk,3,3);
+
+    //-------------------------
+    // FEET
+    //-------------------------
+    g.fillRoundRect(14,41+walk,8,3,2,2);
+    g.fillRoundRect(26,41-walk,8,3,2,2);
+
+    //-------------------------
+    // PELVIS
+    //-------------------------
+    g.setColor(bone);
+    g.fillRoundRect(15,24,18,7,4,4);
+
+    //-------------------------
+    // SPINE
+    //-------------------------
+    g.setColor(darkBone);
+    g.fillRoundRect(22,15,4,10,2,2);
+
+    //-------------------------
+    // RIB CAGE
+    //-------------------------
+    g.setColor(bone);
+    g.fillRoundRect(13,12,22,14,8,8);
+
+    g.setColor(darkBone);
+
+    for(int i=0;i<4;i++){
+        int y=14+i*3;
+        g.drawLine(15,y,33,y);
     }
+
+    //-------------------------
+    // ARMS
+    //-------------------------
+    g.setColor(bone);
+
+    int swing=(frame%2==0)?3:-3;
+
+    g.fillRoundRect(8,15+swing,5,13,3,3);
+    g.fillRoundRect(35,15-swing,5,13,3,3);
+
+    //-------------------------
+    // HANDS
+    //-------------------------
+    g.fillOval(8,25+swing,5,5);
+    g.fillOval(35,25-swing,5,5);
+
+    //-------------------------
+    // SKULL
+    //-------------------------
+    g.setColor(bone);
+    g.fillRoundRect(12,2,24,18,8,8);
+
+    //-------------------------
+    // JAW
+    //-------------------------
+    g.fillRoundRect(16,16,16,7,4,4);
+
+    //-------------------------
+    // EYES
+    //-------------------------
+    g.setColor(new Color(25,25,30));
+
+    g.fillOval(17,8,6,6);
+    g.fillOval(25,8,6,6);
+
+    //-------------------------
+    // GLOW
+    //-------------------------
+    g.setColor(new Color(0,255,140,180));
+
+    g.fillOval(19,10,2,2);
+    g.fillOval(27,10,2,2);
+
+    //-------------------------
+    // NOSE
+    //-------------------------
+    g.setColor(outline);
+    g.fillOval(23,12,2,4);
+
+    //-------------------------
+    // TEETH
+    //-------------------------
+    g.setColor(darkBone);
+
+    for(int i=0;i<4;i++){
+        g.drawLine(18+i*3,18,18+i*3,21);
+    }
+
+    //-------------------------
+    // OUTLINE
+    //-------------------------
+    g.setColor(outline);
+    g.drawRoundRect(12,2,24,18,8,8);
+    g.drawRoundRect(13,12,22,14,8,8);
+    g.drawRoundRect(15,24,18,7,4,4);
+
+    g.dispose();
+
+    return img;
+}
 }
