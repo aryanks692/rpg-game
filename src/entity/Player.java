@@ -7,6 +7,7 @@ import combat.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Player extends Entity {
@@ -27,7 +28,7 @@ public class Player extends Entity {
     public boolean attacking = false;
     public int attackTimer = 0;
     public static final int ATTACK_DURATION = 20;
-    public List<AttackHitbox> activeHitboxes = new ArrayList<>();
+    public List<AttackHitbox> activeHitboxes = new LinkedList<>();
 
     public int fireCooldown = 0;
     public static final int FIRE_RATE = 20;
@@ -338,29 +339,38 @@ public class Player extends Entity {
 
     private void checkInteract() {
         // Check NPC proximity
-        if (gp.npcs == null) return;
-        Rectangle interactZone = new Rectangle(
-            worldX + collisionBox.x - 8, worldY + collisionBox.y - 8,
-            collisionBox.width + 16, collisionBox.height + 16
-        );
-        for (NPC npc : gp.npcs) {
-            if (npc == null) continue;
-            if (interactZone.intersects(npc.getWorldCollisionBox())) {
-                npc.startDialogue();
-                gp.gameState = GameState.DIALOGUE;
-                return;
+        if (gp.npcs != null) {
+            Rectangle interactZone = new Rectangle(
+                worldX + collisionBox.x - 10, worldY + collisionBox.y - 10,
+                collisionBox.width + 20, collisionBox.height + 20
+            );
+            for (NPC npc : gp.npcs) {
+                if (npc == null) continue;
+                if (interactZone.intersects(npc.getWorldCollisionBox())) {
+                    npc.startDialogue();
+                    gp.gameState = GameState.DIALOGUE;
+                    return;
+                }
             }
         }
-        // Check chest
+        // Check Chests and Buildings
         if (gp.objects != null) {
+            Rectangle interactZone = new Rectangle(
+                worldX + collisionBox.x - 10, worldY + collisionBox.y - 10,
+                collisionBox.width + 20, collisionBox.height + 20
+            );
             for (object.SuperObject obj : gp.objects) {
-                if (obj == null || obj.pickedUp) continue;
+                if (obj == null) continue;
                 if (obj instanceof object.OBJ_Chest) {
                     object.OBJ_Chest chest = (object.OBJ_Chest) obj;
-                    if (!chest.opened) {
-                        if (interactZone.intersects(obj.getWorldCollisionBox())) {
-                            chest.onPickup(this);
-                        }
+                    if (!chest.opened && interactZone.intersects(obj.getWorldCollisionBox())) {
+                        chest.onPickup(this);
+                        return;
+                    }
+                } else if (!(obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield)) {
+                    if (interactZone.intersects(obj.getWorldCollisionBox())) {
+                        obj.onPickup(this);
+                        return;
                     }
                 }
             }
@@ -371,10 +381,14 @@ public class Player extends Entity {
         if (gp.objects == null) return;
         Rectangle playerBox = getWorldCollisionBox();
         for (object.SuperObject obj : gp.objects) {
-            if (obj == null || obj.pickedUp || obj instanceof object.OBJ_Chest) continue;
-            if (playerBox.intersects(obj.getWorldCollisionBox())) {
-                obj.onPickup(this);
-                inventory.add(obj.name);
+            if (obj == null || obj.pickedUp) continue;
+            // Only collect actual items from ground (Potion, Sword, Shield)
+            if (obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield) {
+                if (playerBox.intersects(obj.getWorldCollisionBox())) {
+                    obj.onPickup(this);
+                    inventory.add(obj.name);
+                    obj.pickedUp = true;
+                }
             }
         }
     }
@@ -384,9 +398,10 @@ public class Player extends Entity {
         int row = (worldY + height / 2) / gp.tileSize;
         String zone;
 
-        // --- NEW ZONE COORDINATES (POST 30-ROW SHIFT) ---
+        // --- ZONE COORDINATES ---
         if (row < 30) {
-            zone = "Great Savannah";
+            if (col >= 58) zone = "Dusty Gulch";
+            else zone = "Great Savannah";
         } else if (row >= 30 && row < 39) {
             zone = "Golden Meadows";
         } else if (row >= 39 && row < 62) {

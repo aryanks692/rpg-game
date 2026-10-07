@@ -53,10 +53,27 @@ public class QuestManager {
         q5.rewardItem = "Gold Potion";
         quests.add(q5);
 
-        // Activate starter quests
+        // Wild West Outlaw Quest
+        Quest q6 = new Quest("Q_OUTLAWS", "Showdown in Dusty Gulch",
+            "Marshal Wyatt asks you to eliminate 3 Outlaws in the Badlands.", Quest.Type.KILL);
+        q6.targetEnemy = "Outlaw";
+        q6.killRequired = 3;
+        q6.rewardGold = 200;
+        q6.rewardItem = "Gold Potion";
+        quests.add(q6);
+
+        // Connect quests into linked storyline chains
+        // Chain 1 (Combat Storyline): Slimes -> Skeletons -> Crystal Depths
+        q1.nextQuest = q3;
+        q3.nextQuest = q4;
+
+        // Chain 2 (Exploration & Frontier Storyline): Dark Forest -> Great Savannah -> Dusty Gulch Outlaws
+        q2.nextQuest = q5;
+        q5.nextQuest = q6;
+
+        // Activate starter quest heads
         q1.status = Quest.Status.ACTIVE;
         q2.status = Quest.Status.ACTIVE;
-        q5.status = Quest.Status.ACTIVE;
     }
 
     public List<Quest> getActiveQuests() {
@@ -74,8 +91,11 @@ public class QuestManager {
                 q.killCount++;
                 if (q.isComplete()) {
                     q.status = Quest.Status.COMPLETED;
-                    // Activate next quest
-                    activateNextQuest();
+                    if (gp.ui != null) {
+                        gp.ui.showNotification("Quest Complete: " + q.title);
+                    }
+                    // Activate next quest via linked list pointer
+                    advanceLinkedQuest(q);
                     gp.saveManager.save(0);
                 }
             }
@@ -89,18 +109,21 @@ public class QuestManager {
                 q.explored = true;
                 if (q.isComplete()) {
                     q.status = Quest.Status.COMPLETED;
-                    activateNextQuest();
+                    if (gp.ui != null) {
+                        gp.ui.showNotification("Quest Complete: " + q.title);
+                    }
+                    advanceLinkedQuest(q);
                     gp.saveManager.save(0);
                 }
             }
         }
     }
 
-    private void activateNextQuest() {
-        for (Quest q : quests) {
-            if (q.status == Quest.Status.INACTIVE) {
-                q.status = Quest.Status.ACTIVE;
-                break;
+    private void advanceLinkedQuest(Quest q) {
+        if (q.nextQuest != null && q.nextQuest.status == Quest.Status.INACTIVE) {
+            q.nextQuest.status = Quest.Status.ACTIVE;
+            if (gp.ui != null) {
+                gp.ui.showNotification("New Quest: " + q.nextQuest.title);
             }
         }
     }

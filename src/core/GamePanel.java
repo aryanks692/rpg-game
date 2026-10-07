@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -27,7 +28,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow; // 576
 
     // World size
-    public final int maxWorldCol = 70;
+    public final int maxWorldCol = 100;
     public final int maxWorldRow = 100;
 
     // Target FPS
@@ -52,9 +53,9 @@ public class GamePanel extends JPanel implements Runnable {
     public SuperObject[] objects;
     public Entity currentDialogueEntity;
 
-    // Combat effects and projectiles
-    public List<DamageNumber> damageNumbers = new ArrayList<>();
-    public List<Projectile> projectiles = new ArrayList<>();
+    // Combat effects and projectiles (LinkedList for O(1) removal on update)
+    public List<DamageNumber> damageNumbers = new LinkedList<>();
+    public List<Projectile> projectiles = new LinkedList<>();
 
     // State
     public GameState gameState = GameState.TITLE;
@@ -91,6 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
         sound.loadTrack("Verdant Village", "/res/sound/village.mid");
         sound.loadTrack("Darkwood Forest", "/res/sound/forest.mid");
         sound.loadTrack("Great Savannah", "/res/sound/savannah.mid");
+        sound.loadTrack("Dusty Gulch", "/res/sound/wildwest.mid");
         sound.loadTrack("Golden Meadows", "/res/sound/village.mid"); // Fallback
         sound.loadTrack("Crystal Caves", "/res/sound/cave.mid");
         sound.loadTrack("Ancient Ruins", "/res/sound/cave.mid"); // Fallback

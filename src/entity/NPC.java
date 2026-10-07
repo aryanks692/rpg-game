@@ -28,9 +28,14 @@ public class NPC extends Entity {
         this.height = gp.tileSize;
         collisionBox = new Rectangle(8, 16, 32, 28);
 
-        if ("merchant".equals(role))  bodyColor = new Color(180, 100, 40);
-        else if ("elder".equals(role)) bodyColor = new Color(100, 100, 160);
-        else                           bodyColor = new Color(180, 70, 70);
+        if ("merchant".equals(role))       bodyColor = new Color(180, 100, 40);
+        else if ("elder".equals(role))     bodyColor = new Color(100, 100, 160);
+        else if ("sheriff".equals(role))   bodyColor = new Color(90, 60, 35);
+        else if ("police".equals(role))    bodyColor = new Color(45, 60, 95);
+        else if ("dancer".equals(role))    bodyColor = new Color(195, 35, 75);
+        else if ("bartender".equals(role)) bodyColor = new Color(230, 225, 210);
+        else if ("cowboy".equals(role))    bodyColor = new Color(160, 110, 60);
+        else                               bodyColor = new Color(180, 70, 70);
         skinColor = new Color(255, 210, 170);
         buildSprites();
     }
@@ -67,6 +72,15 @@ public class NPC extends Entity {
         g.setColor(new Color(0, 0, 0, 80));
         g.fillRect(10, 36, 28, 4);
 
+        // Bartender vest & apron
+        if ("bartender".equals(role)) {
+            g.setColor(new Color(65, 40, 20)); // Vest
+            g.fillRect(10, 20, 7, 16);
+            g.fillRect(31, 20, 7, 16);
+            g.setColor(new Color(240, 240, 240)); // White Apron
+            g.fillRect(14, 28, 20, 12);
+        }
+
         // --- ARMS ---
         g.setColor(bodyColor);
         g.fillRoundRect(4, 22 + legOffset / 2, 8, 12, 4, 4);
@@ -86,7 +100,9 @@ public class NPC extends Entity {
         g.fillArc(12, 8, 24, 20, 180, 180); 
 
         // --- HAIR ---
-        g.setColor(role.equals("elder") ? Color.LIGHT_GRAY : new Color(100, 60, 20));
+        if ("dancer".equals(role)) g.setColor(new Color(40, 25, 20));
+        else if ("elder".equals(role)) g.setColor(Color.LIGHT_GRAY);
+        else g.setColor(new Color(100, 60, 20));
         g.fillOval(12, 6, 24, 14);
 
         // --- EYES ---
@@ -97,27 +113,61 @@ public class NPC extends Entity {
             g.fillOval(28 + eyeOff, 17, 3, 4);
         }
 
-        // --- MERCHANT HAT ---
-        if (role.equals("merchant")) {
+        // --- ROLE SPECIFIC ACCESSORIES ---
+
+        // 1. MERCHANT HAT
+        if ("merchant".equals(role)) {
             g.setColor(new Color(80, 50, 20));
-            // Back brim
             g.fillRect(10, 5, 28, 5);
-            // Top hat portion
             g.fillRoundRect(14, 0, 20, 10, 4, 4);
-            // Hat band
             g.setColor(new Color(150, 30, 30));
             g.fillRect(14, 7, 20, 3);
         }
 
-        // --- ELDER STAFF ---
-        if (role.equals("elder")) {
+        // 2. SHERIFF & POLICE STAR & STETSON
+        if ("sheriff".equals(role) || "police".equals(role)) {
+            // Brown/Black Stetson
+            g.setColor(new Color(45, 30, 15));
+            g.fillRoundRect(8, 5, 32, 5, 4, 4);
+            g.fillRoundRect(14, 0, 20, 8, 4, 4);
+            g.setColor(new Color(220, 180, 40));
+            g.fillRect(14, 4, 20, 2);
+            // Gold Star Badge on Chest
+            g.setColor(new Color(255, 215, 0));
+            g.fillOval(14, 23, 6, 6);
+            g.setColor(Color.WHITE);
+            g.fillRect(16, 25, 2, 2);
+        }
+
+        // 3. DANCE CLUB DANCER FEATHERED HEADPIECE
+        if ("dancer".equals(role)) {
+            // Sparkling tiara / feathers
+            g.setColor(new Color(255, 80, 140));
+            g.fillOval(20, 0, 8, 10);
+            g.fillOval(16, 2, 6, 8);
+            g.fillOval(26, 2, 6, 8);
+            g.setColor(new Color(255, 215, 0));
+            g.fillRect(14, 6, 20, 3);
+            // Sparkle
+            g.setColor(Color.WHITE);
+            g.fillRect(23, 2, 2, 2);
+        }
+
+        // 4. COWBOY HAT
+        if ("cowboy".equals(role)) {
+            g.setColor(new Color(120, 80, 40));
+            g.fillRoundRect(8, 5, 32, 5, 4, 4);
+            g.fillRoundRect(14, 0, 20, 8, 4, 4);
+            g.setColor(new Color(180, 40, 40)); // Red Band
+            g.fillRect(14, 4, 20, 2);
+        }
+
+        // 5. ELDER STAFF
+        if ("elder".equals(role)) {
             g.setColor(new Color(100, 80, 40));
             g.fillRect(38, 14, 4, 28);
-            
             g.setColor(new Color(150, 220, 255));
             g.fillOval(35, 10, 10, 10);
-            
-            // Magic glow on staff
             g.setColor(new Color(255, 255, 255, 150));
             g.fillOval(38, 12, 4, 4);
         }

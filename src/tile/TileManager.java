@@ -29,6 +29,11 @@ public class TileManager {
     public static final int RUIN_WALL  = 15;
     public static final int SAVANNAH_GRASS = 16;
     public static final int SAVANNAH_TREE  = 17;
+    public static final int CACTUS         = 18;
+    public static final int WOOD_PLANK     = 19;
+    public static final int RED_SAND       = 20;
+    public static final int WOOD_FENCE     = 21;
+    public static final int HITCHING_POST  = 22;
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
@@ -216,6 +221,156 @@ public class TileManager {
         g.dispose(); return img;
     }
 
+    private BufferedImage createCactusTile() {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Red sand ground base
+        g.drawImage(createRedSandTile(), 0, 0, null);
+        // Ground shadow
+        g.setColor(new Color(0, 0, 0, 80));
+        g.fillOval(ts / 2 - 14, ts - 10, 28, 8);
+        // Saguaro Trunk
+        Color cactusGreen = new Color(55, 125, 45);
+        Color cactusDark = new Color(35, 85, 30);
+        Color cactusLight = new Color(85, 160, 65);
+        g.setColor(cactusDark);
+        g.fillRoundRect(ts / 2 - 5, 8, 10, ts - 16, 6, 6);
+        g.setColor(cactusGreen);
+        g.fillRoundRect(ts / 2 - 4, 9, 8, ts - 18, 5, 5);
+        // Left arm
+        g.setColor(cactusDark);
+        g.fillRect(ts / 2 - 14, 18, 10, 5);
+        g.fillRoundRect(ts / 2 - 15, 12, 6, 12, 4, 4);
+        g.setColor(cactusGreen);
+        g.fillRect(ts / 2 - 13, 19, 8, 3);
+        g.fillRoundRect(ts / 2 - 14, 13, 4, 10, 3, 3);
+        // Right arm
+        g.setColor(cactusDark);
+        g.fillRect(ts / 2 + 4, 24, 10, 5);
+        g.fillRoundRect(ts / 2 + 9, 16, 6, 14, 4, 4);
+        g.setColor(cactusGreen);
+        g.fillRect(ts / 2 + 5, 25, 8, 3);
+        g.fillRoundRect(ts / 2 + 10, 17, 4, 12, 3, 3);
+        // Vertical ribs/spines
+        g.setColor(cactusLight);
+        g.drawLine(ts / 2, 10, ts / 2, ts - 10);
+        g.dispose();
+        return img;
+    }
+
+    private BufferedImage createWoodPlankTile() {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        Color base = new Color(175, 130, 80);
+        Color dark = new Color(105, 75, 45);
+        Color light = new Color(205, 160, 110);
+        int ph = ts / 4;
+        for (int y = 0; y < ts; y += ph) {
+            g.setColor(base);
+            g.fillRect(0, y, ts, ph - 1);
+            g.setColor(dark);
+            g.fillRect(0, y + ph - 1, ts, 1);
+            g.setColor(light);
+            g.fillRect(0, y, ts, 1);
+            // Nail dots
+            g.setColor(new Color(60, 40, 25));
+            g.fillRect(4, y + ph / 2, 2, 2);
+            g.fillRect(ts - 6, y + ph / 2, 2, 2);
+        }
+        g.dispose();
+        return img;
+    }
+
+    private BufferedImage createRedSandTile() {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        Color s1 = new Color(215, 145, 85);
+        Color s2 = new Color(195, 125, 70);
+        Color s3 = new Color(175, 105, 55);
+        g.setColor(s1);
+        g.fillRect(0, 0, ts, ts);
+        for (int y = 0; y < ts; y += 2) {
+            for (int x = 0; x < ts; x += 2) {
+                int rand = (x * 17 + y * 11 + (x * y)) % 4;
+                if (rand == 0) g.setColor(s2);
+                else if (rand == 1) g.setColor(s3);
+                else g.setColor(s1);
+                g.fillRect(x, y, 2, 2);
+            }
+        }
+        // Occasional desert pebbles
+        g.setColor(new Color(130, 80, 45));
+        g.fillRect(8, 12, 3, 2);
+        g.fillRect(32, 28, 2, 2);
+        g.fillRect(20, 40, 3, 1);
+        g.dispose();
+        return img;
+    }
+
+    private BufferedImage createWoodFenceTile() {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(createRedSandTile(), 0, 0, null);
+        // Shadow
+        g.setColor(new Color(0, 0, 0, 70));
+        g.fillRect(0, ts - 12, ts, 6);
+        // Fence Post
+        Color wood = new Color(130, 85, 45);
+        Color woodDark = new Color(85, 50, 25);
+        Color woodLight = new Color(170, 115, 65);
+        g.setColor(woodDark);
+        g.fillRoundRect(ts / 2 - 5, 8, 10, ts - 14, 4, 4);
+        g.setColor(wood);
+        g.fillRoundRect(ts / 2 - 4, 9, 8, ts - 16, 3, 3);
+        // Rails
+        g.setColor(woodDark);
+        g.fillRect(0, 14, ts, 7);
+        g.fillRect(0, 26, ts, 7);
+        g.setColor(wood);
+        g.fillRect(0, 15, ts, 5);
+        g.fillRect(0, 27, ts, 5);
+        g.setColor(woodLight);
+        g.fillRect(0, 15, ts, 1);
+        g.fillRect(0, 27, ts, 1);
+        g.dispose();
+        return img;
+    }
+
+    private BufferedImage createHitchingPostTile() {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(createWoodPlankTile(), 0, 0, null);
+        Color wood = new Color(140, 95, 55);
+        Color woodDark = new Color(90, 55, 30);
+        // Left & Right upright posts
+        g.setColor(woodDark);
+        g.fillRect(6, 12, 6, ts - 16);
+        g.fillRect(ts - 12, 12, 6, ts - 16);
+        g.setColor(wood);
+        g.fillRect(7, 13, 4, ts - 18);
+        g.fillRect(ts - 11, 13, 4, ts - 18);
+        // Horizontal hitch rail
+        g.setColor(woodDark);
+        g.fillRect(4, 18, ts - 8, 6);
+        g.setColor(wood);
+        g.fillRect(4, 19, ts - 8, 4);
+        // Iron rings
+        g.setColor(Color.LIGHT_GRAY);
+        g.drawOval(14, 25, 6, 6);
+        g.drawOval(ts - 20, 25, 6, 6);
+        g.dispose();
+        return img;
+    }
+
     private void createTiles() {
         tiles[GRASS] = new Tile(); tiles[GRASS].image = createPremiumFloralGrass(new Color(110, 195, 75), false);
         tiles[GRASS2] = new Tile(); tiles[GRASS2].image = createPremiumFloralGrass(new Color(95, 185, 60), true);
@@ -241,6 +396,11 @@ public class TileManager {
         tiles[RUIN_WALL].collision = true;
         tiles[SAVANNAH_GRASS] = new Tile(); tiles[SAVANNAH_GRASS].image = createIndieSavannahGrass();
         tiles[SAVANNAH_TREE] = new Tile(); tiles[SAVANNAH_TREE].image = createIndieAcaciaTree(); tiles[SAVANNAH_TREE].collision = true;
+        tiles[CACTUS] = new Tile(); tiles[CACTUS].image = createCactusTile(); tiles[CACTUS].collision = true;
+        tiles[WOOD_PLANK] = new Tile(); tiles[WOOD_PLANK].image = createWoodPlankTile();
+        tiles[RED_SAND] = new Tile(); tiles[RED_SAND].image = createRedSandTile();
+        tiles[WOOD_FENCE] = new Tile(); tiles[WOOD_FENCE].image = createWoodFenceTile(); tiles[WOOD_FENCE].collision = true;
+        tiles[HITCHING_POST] = new Tile(); tiles[HITCHING_POST].image = createHitchingPostTile(); tiles[HITCHING_POST].collision = true;
     }
 
     public void loadMap(String filePath) {
@@ -262,16 +422,67 @@ public class TileManager {
     private void generateDefaultMap() {
         int W = gp.maxWorldCol; int H = gp.maxWorldRow; int rowOff = 30;
         for (int c = 0; c < W; c++) for (int r = 0; r < H; r++) mapTileNum[c][r] = GRASS;
+        // World outer boundaries
         for (int c = 0; c < W; c++) { mapTileNum[c][0] = WALL; mapTileNum[c][H-1] = WALL; }
         for (int r = 0; r < H; r++) { mapTileNum[0][r] = WALL; mapTileNum[W-1][r] = WALL; }
-        for (int c = 1; c < W-1; c++) for (int r = 1; r < rowOff; r++) mapTileNum[c][r] = (c % 7 == 0 && r % 4 == 0) ? SAND : SAVANNAH_GRASS;
-        for (int c = 5; c < W-5; c += 8) for (int r = 3; r < rowOff-3; r += 7) if ((c * r) % 5 < 2) mapTileNum[c][r] = SAVANNAH_TREE;
+
+        // --- 1. GREAT SAVANNAH (Rows 1-29, Cols 1-56) ---
+        for (int c = 1; c <= 56; c++) for (int r = 1; r < rowOff; r++) mapTileNum[c][r] = (c % 7 == 0 && r % 4 == 0) ? SAND : SAVANNAH_GRASS;
+        for (int c = 5; c <= 50; c += 8) for (int r = 3; r < rowOff-3; r += 7) if ((c * r) % 5 < 2) mapTileNum[c][r] = SAVANNAH_TREE;
+        for (int c = 8; c <= 54; c += 11) for (int r = 5; r < rowOff-4; r += 8) mapTileNum[c][r] = CACTUS;
+
+        // --- 2. BADLANDS & DUSTY GULCH WILD WEST TOWN (Rows 1-29, Cols 57-98) ---
+        for (int c = 57; c < W - 1; c++) for (int r = 1; r < rowOff; r++) mapTileNum[c][r] = RED_SAND;
+
+        // Connecting Frontier Trail from Savannah into Dusty Gulch
+        for (int c = 48; c <= 62; c++) {
+            mapTileNum[c][15] = RED_SAND;
+            mapTileNum[c][16] = RED_SAND;
+        }
+
+        // Town Main Street (East-West Boulevard)
+        for (int c = 61; c <= 96; c++) {
+            mapTileNum[c][14] = WOOD_PLANK; // North Boardwalk
+            mapTileNum[c][15] = RED_SAND;   // Main dirt road
+            mapTileNum[c][16] = RED_SAND;   // Main dirt road
+            mapTileNum[c][17] = WOOD_PLANK; // South Boardwalk
+        }
+
+        // Cross avenues & building plazas
+        // Avenue 1: Police Station (Cols 66-68, Rows 8-14)
+        for (int c = 66; c <= 68; c++) for (int r = 8; r <= 14; r++) mapTileNum[c][r] = WOOD_PLANK;
+        // Avenue 2: Saloon Plaza (Cols 75-79, Rows 7-14)
+        for (int c = 75; c <= 79; c++) for (int r = 7; r <= 14; r++) mapTileNum[c][r] = WOOD_PLANK;
+        // Avenue 3: Dance Club Promenade (Cols 84-88, Rows 7-14)
+        for (int c = 84; c <= 88; c++) for (int r = 7; r <= 14; r++) mapTileNum[c][r] = WOOD_PLANK;
+        // Avenue 4: General Store & Water Tower (Cols 91-95, Rows 8-22)
+        for (int c = 91; c <= 95; c++) for (int r = 8; r <= 22; r++) mapTileNum[c][r] = WOOD_PLANK;
+
+        // Hitching Posts along boardwalks
+        for (int c = 65; c <= 95; c += 6) {
+            mapTileNum[c][13] = HITCHING_POST;
+            mapTileNum[c][18] = HITCHING_POST;
+        }
+
+        // Western Perimeter Fences & Corral
+        for (int c = 60; c <= 97; c++) { mapTileNum[c][2] = WOOD_FENCE; mapTileNum[c][28] = WOOD_FENCE; }
+        for (int r = 2; r <= 28; r++) { if (r != 15 && r != 16) mapTileNum[60][r] = WOOD_FENCE; }
+        // Animal Corral / Stables near water tower (Cols 82-89, Rows 20-26)
+        for (int c = 82; c <= 89; c++) { mapTileNum[c][20] = WOOD_FENCE; mapTileNum[c][26] = WOOD_FENCE; }
+        for (int r = 20; r <= 26; r++) { if (r != 23) mapTileNum[82][r] = WOOD_FENCE; mapTileNum[89][r] = WOOD_FENCE; }
+
+        // Desert Cacti around badlands perimeter
+        for (int c = 58; c < W - 2; c += 5) for (int r = 3; r < rowOff - 2; r += 6) if ((c + r) % 7 == 0 && mapTileNum[c][r] == RED_SAND) mapTileNum[c][r] = CACTUS;
+
+        // --- 3. GOLDEN MEADOWS (Rows 30-38) ---
         for (int c = 1; c <= 5; c++) for (int r = rowOff + 1; r < H-1; r++) mapTileNum[c][r] = WATER_A;
         for (int r = rowOff + 1; r < H-1; r++) { mapTileNum[6][r] = (r % 3 == 0) ? SAND : WATER_A; mapTileNum[7][r] = SAND; mapTileNum[8][r] = (r % 5 == 0) ? GRASS2 : SAND; }
         for (int c = 5; c <= 9; c++) mapTileNum[c][20+rowOff] = PATH;
         for (int r = 18+rowOff; r <= 22+rowOff; r++) mapTileNum[9][r] = PATH;
         for (int c = 9; c < W-1; c++) for (int r = 1+rowOff; r <= 8+rowOff; r++) mapTileNum[c][r] = (c % 5 == 0 && r % 3 == 0) ? FLOWER : GRASS2;
         placeTrees(10, 1+rowOff, W-2, 7+rowOff);
+
+        // --- 4. VERDANT VILLAGE & DARKWOOD FOREST (Rows 39-61) ---
         for (int c = 19; c <= 29; c++) mapTileNum[c][8+rowOff] = PATH;
         for (int c = 45; c < W-1; c++) for (int r = 1+rowOff; r < H-1; r++) mapTileNum[c][r] = (r < 30+rowOff) ? GRASS2 : GRASS;
         placeTrees(46, 1+rowOff, W-2, 28+rowOff);
@@ -285,8 +496,10 @@ public class TileManager {
         for (int r = 14+rowOff; r < 18+rowOff; r++) mapTileNum[25][r] = PATH;
         for (int r = 16+rowOff; r < 18+rowOff; r++) { mapTileNum[18][r] = PATH; mapTileNum[19][r] = PATH; }
         for (int r = 18+rowOff; r < 26+rowOff; r++) mapTileNum[18][r] = PATH;
-        for (int c = 33; c < 42; c++) for (int r = 1+rowOff; r < 28+rowOff; r++) mapTileNum[c][r] = DARK_GRASS;
-        placeTrees(34, 2+rowOff, 41, 27+rowOff);
+        for (int c = 33; c < W-2; c++) for (int r = 1+rowOff; r < 28+rowOff; r++) if (mapTileNum[c][r] == GRASS) mapTileNum[c][r] = DARK_GRASS;
+        placeTrees(34, 2+rowOff, W-3, 27+rowOff);
+
+        // --- 5. CRYSTAL CAVES & ANCIENT RUINS (Rows 62-99) ---
         for (int c = 9; c < 28; c++) for (int r = 38+rowOff; r < H-1; r++) mapTileNum[c][r] = CAVE_FLOOR;
         for (int r = 38+rowOff; r < H-1; r++) { mapTileNum[9][r] = CAVE_WALL; mapTileNum[27][r] = CAVE_WALL; }
         for (int c = 9; c < 28; c++) { mapTileNum[c][38+rowOff] = CAVE_WALL; mapTileNum[c][H-2] = CAVE_WALL; }
@@ -295,7 +508,7 @@ public class TileManager {
         for (int c = 32; c < W-2; c += 7) for (int r = 40+rowOff; r < H-3; r += 7) mapTileNum[c][r] = RUIN_WALL;
         for (int r = 38+rowOff; r < H-1; r++) mapTileNum[W-2][r] = RUIN_WALL;
         for (int c = 28; c < 45; c++) for (int r = 29+rowOff; r < 38+rowOff; r++) mapTileNum[c][r] = SAND;
-        for (int c = 9; c < 45; c++) for (int r = 28+rowOff; r <= 28+rowOff; r++) mapTileNum[c][r] = GRASS;
+        for (int c = 9; c < W-2; c++) for (int r = 28+rowOff; r <= 28+rowOff; r++) mapTileNum[c][r] = GRASS;
         for (int r = 26+rowOff; r < 38+rowOff; r++) mapTileNum[28][r] = PATH;
         for (int c = 9;  c < 45; c++) mapTileNum[c][37+rowOff]  = PATH;
     }

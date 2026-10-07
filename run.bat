@@ -34,6 +34,22 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/combat/AttackHitbox.java ^
   src/combat/DamageNumber.java ^
   src/combat/Projectile.java ^
+  src/ui/UIConstants.java ^
+  src/ui/UIFonts.java ^
+  src/ui/UIPanel.java ^
+  src/ui/NotificationManager.java ^
+  src/ui/HealthBar.java ^
+  src/ui/HUD.java ^
+  src/ui/BossHUD.java ^
+  src/ui/MiniMap.java ^
+  src/ui/DialogueUI.java ^
+  src/ui/InventoryUI.java ^
+  src/ui/QuestLogUI.java ^
+  src/ui/PauseMenu.java ^
+  src/ui/TitleScreen.java ^
+  src/ui/SaveMenu.java ^
+  src/ui/DeathScreen.java ^
+  src/ui/WinScreen.java ^
   src/ui/UI.java ^
   src/quest/Quest.java ^
   src/quest/QuestManager.java ^

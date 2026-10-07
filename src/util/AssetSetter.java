@@ -13,11 +13,11 @@ public class AssetSetter {
     }
 
     public void setupNPCs() {
-        gp.npcs = new NPC[6];
+        gp.npcs = new NPC[12];
         int ts = gp.tileSize;
         int rowOff = 30;
 
-        // Village is now shifted down by rowOff (30)
+        // Village is shifted down by rowOff (30)
         gp.npcs[0] = new NPC(gp, "Elder Rowan", "elder",
                 ts * 16, ts * (12 + rowOff),
                 "Welcome, traveler, to Verdant Village. Our land is in peril...",
@@ -66,20 +66,65 @@ public class AssetSetter {
                 "(She smiles, just enough to tease)",
                 "Careful\u2026 not every flame is meant to keep you warm.",
                 "Some are meant to make you forget everything but the fire.");
+
+        // --- WILD WEST TOWN (DUSTY GULCH) NPCS ---
+        gp.npcs[6] = new NPC(gp, "Marshal Wyatt", "sheriff",
+                ts * 66, ts * 13,
+                "Hold your horses, stranger! Welcome to Dusty Gulch.",
+                "We keep the law strict around here. Keep your weapons sheathed in town.",
+                "Outlaws from the Rustler Gang have infested the badlands to the west.",
+                "Slay 3 of them and I'll see to it you receive the town bounty!");
+
+        gp.npcs[7] = new NPC(gp, "Deputy Cole", "police",
+                ts * 68, ts * 14,
+                "Frontier Police Station on duty! All quiet in the holding cells.",
+                "Check out the wanted posters if you're looking for outlaw bounties.");
+
+        gp.npcs[8] = new NPC(gp, "Bartender Jed", "bartender",
+                ts * 76, ts * 13,
+                "Howdy partner! Welcome to the Silver Spur Saloon!",
+                "Finest sarsaparilla and cold brews this side of the Great Savannah.",
+                "Word is the Sun Guardian protects the sacred golden temple to the west.");
+
+        gp.npcs[9] = new NPC(gp, "Lola", "dancer",
+                ts * 85, ts * 13,
+                "Welcome darling, to the Wild West Dance Club!",
+                "Hear the banjo, feel the rhythm... dance your troubles away!",
+                "Even the toughest outlaws tip their hats when our music plays.");
+
+        gp.npcs[10] = new NPC(gp, "Daisy", "merchant",
+                ts * 92, ts * 13,
+                "Howdy! Dusty Gulch General Store is open for business.",
+                "Stock up on supplies and health potions before riding into the canyon!");
+
+        gp.npcs[11] = new NPC(gp, "Prospector Pete", "cowboy",
+                ts * 94, ts * 21,
+                "Gold in them hills, I tell ya! Yeehaw!",
+                "The red canyon and ancient ruins are filled with untold riches!");
     }
 
     public void setupEnemies() {
         int ts = gp.tileSize;
         int rowOff = 30;
-        gp.enemies = new Enemy[30]; // ── Expanded for Savannah ────────────────
+        gp.enemies = new Enemy[36]; // Expanded for Savannah & Dusty Gulch Outlaws
 
-        // Savannah Region (NEW: Rows 1-30)
+        // Savannah Region (Rows 1-30)
         gp.enemies[23] = new Slime(gp, ts * 15, ts * 10);
         gp.enemies[24] = new Slime(gp, ts * 45, ts * 15);
         gp.enemies[25] = new Skeleton(gp, ts * 30, ts * 5);
-        gp.enemies[26] = new Skeleton(gp, ts * 55, ts * 20);
+        gp.enemies[26] = new Skeleton(gp, ts * 50, ts * 20);
         // Savannah boss location (Top Center)
         gp.enemies[27] = new SunGuardian(gp, ts * 35, ts * 15);
+
+        // --- Wild West Badlands & Outlaws ---
+        gp.enemies[28] = new Outlaw(gp, ts * 62, ts * 7);
+        gp.enemies[29] = new Outlaw(gp, ts * 70, ts * 22);
+        gp.enemies[30] = new Outlaw(gp, ts * 80, ts * 25);
+        gp.enemies[31] = new Outlaw(gp, ts * 94, ts * 6);
+        gp.enemies[32] = new Outlaw(gp, ts * 58, ts * 20);
+        gp.enemies[33] = new Outlaw(gp, ts * 65, ts * 26);
+        gp.enemies[34] = new Slime(gp, ts * 52, ts * 10);
+        gp.enemies[35] = new Skeleton(gp, ts * 54, ts * 22);
 
         // Slimes near lake (Shifted)
         gp.enemies[0] = new Slime(gp, ts * 23, ts * (5 + rowOff));
@@ -120,7 +165,7 @@ public class AssetSetter {
     public void setupObjects() {
         int ts = gp.tileSize;
         int rowOff = 30;
-        gp.objects = new SuperObject[25];
+        gp.objects = new SuperObject[32];
 
         // Village items (Shifted)
         gp.objects[0] = new OBJ_Potion(gp);
@@ -195,5 +240,73 @@ public class AssetSetter {
         gp.objects[16] = new OBJ_Potion(gp);
         gp.objects[16].worldX = ts * 10;
         gp.objects[16].worldY = ts * 5;
+
+        // --- WILD WEST TOWN BUILDINGS (DUSTY GULCH) ---
+        // Police Station
+        gp.objects[17] = new OBJ_PoliceStation(gp);
+        gp.objects[17].worldX = ts * 65;
+        gp.objects[17].worldY = ts * 7;
+
+        // Silver Spur Saloon
+        gp.objects[18] = new OBJ_Saloon(gp);
+        gp.objects[18].worldX = ts * 74;
+        gp.objects[18].worldY = ts * 7;
+
+        // Dance Club & Cabaret
+        gp.objects[19] = new OBJ_DanceClub(gp);
+        gp.objects[19].worldX = ts * 83;
+        gp.objects[19].worldY = ts * 7;
+
+        // General Store
+        gp.objects[20] = new OBJ_GeneralStore(gp);
+        gp.objects[20].worldX = ts * 91;
+        gp.objects[20].worldY = ts * 7;
+
+        // Water Tower
+        gp.objects[21] = new OBJ_WaterTower(gp);
+        gp.objects[21].worldX = ts * 91;
+        gp.objects[21].worldY = ts * 18;
+
+        // Town Barrels
+        gp.objects[22] = new OBJ_Barrel(gp);
+        gp.objects[22].worldX = ts * 64;
+        gp.objects[22].worldY = ts * 13;
+
+        gp.objects[23] = new OBJ_Barrel(gp);
+        gp.objects[23].worldX = ts * 73;
+        gp.objects[23].worldY = ts * 13;
+
+        gp.objects[24] = new OBJ_Barrel(gp);
+        gp.objects[24].worldX = ts * 80;
+        gp.objects[24].worldY = ts * 13;
+
+        gp.objects[25] = new OBJ_Barrel(gp);
+        gp.objects[25].worldX = ts * 82;
+        gp.objects[25].worldY = ts * 13;
+
+        gp.objects[26] = new OBJ_Barrel(gp);
+        gp.objects[26].worldX = ts * 90;
+        gp.objects[26].worldY = ts * 13;
+
+        // Western Chests & Loot
+        gp.objects[27] = new OBJ_Chest(gp, "Bandit Gold", 150);
+        gp.objects[27].worldX = ts * 68;
+        gp.objects[27].worldY = ts * 6;
+
+        gp.objects[28] = new OBJ_Chest(gp, "Sheriff Badge & Gold", 250);
+        gp.objects[28].worldX = ts * 87;
+        gp.objects[28].worldY = ts * 6;
+
+        gp.objects[29] = new OBJ_Potion(gp);
+        gp.objects[29].worldX = ts * 77;
+        gp.objects[29].worldY = ts * 17;
+
+        gp.objects[30] = new OBJ_Potion(gp);
+        gp.objects[30].worldX = ts * 86;
+        gp.objects[30].worldY = ts * 17;
+
+        gp.objects[31] = new OBJ_Potion(gp);
+        gp.objects[31].worldX = ts * 94;
+        gp.objects[31].worldY = ts * 20;
     }
 }

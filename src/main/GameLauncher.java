@@ -25,6 +25,10 @@ public class GameLauncher {
 
         window.setLocationRelativeTo(null);
         window.setVisible(true);
+        window.setAlwaysOnTop(true);
+        window.toFront();
+        window.requestFocus();
+        window.setAlwaysOnTop(false);
 
         gamePanel.requestFocus();
         gamePanel.startGameThread();

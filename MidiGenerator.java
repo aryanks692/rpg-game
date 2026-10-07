@@ -12,6 +12,7 @@ public class MidiGenerator {
             createCaveMusic(new File(outDir, "cave.mid"));
             createSavannahMusic(new File(outDir, "savannah.mid"));
             createForestMusic(new File(outDir, "forest.mid"));
+            createWesternMusic(new File(outDir, "wildwest.mid"));
             
             System.out.println("MIDI files generated successfully!");
         } catch (Exception e) {
@@ -103,6 +104,38 @@ public class MidiGenerator {
                 t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_OFF, 1, note + 12, 0), tick + 40));
             }
             tick += 12;
+        }
+        MidiSystem.write(s, 1, out);
+    }
+
+    private static void createWesternMusic(File out) throws Exception {
+        Sequence s = new Sequence(Sequence.PPQ, 24);
+        Track t = s.createTrack();
+        // Instrument 105 (Banjo) on channel 0
+        t.add(new MidiEvent(new ShortMessage(ShortMessage.PROGRAM_CHANGE, 0, 105, 0), 0));
+        // Instrument 25 (Steel Acoustic Guitar) on channel 1
+        t.add(new MidiEvent(new ShortMessage(ShortMessage.PROGRAM_CHANGE, 1, 25, 0), 0));
+        // Instrument 3 (Honky-tonk Piano) on channel 2
+        t.add(new MidiEvent(new ShortMessage(ShortMessage.PROGRAM_CHANGE, 2, 3, 0), 0));
+
+        // Upbeat Western Ragtime / Outlaw frontier lick
+        int[] melody = {62, 65, 67, 69, 72, 69, 67, 65, 62, 60, 62, 67, 65, 62};
+        int tick = 0;
+        for (int note : melody) {
+            // Lead Banjo
+            t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_ON, 0, note, 95), tick));
+            t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_OFF, 0, note, 0), tick + 16));
+
+            // Acoustic rhythm strum
+            t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_ON, 1, note - 12, 70), tick));
+            t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_OFF, 1, note - 12, 0), tick + 12));
+
+            // Saloon piano bass bounce
+            if (tick % 24 == 0) {
+                t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_ON, 2, note - 24, 80), tick));
+                t.add(new MidiEvent(new ShortMessage(ShortMessage.NOTE_OFF, 2, note - 24, 0), tick + 20));
+            }
+            tick += 18;
         }
         MidiSystem.write(s, 1, out);
     }

@@ -9,6 +9,8 @@ public class Quest {
     public String description;
     public Type type;
     public Status status = Status.INACTIVE;
+    // Linked List pointer to next sequential quest in storyline
+    public Quest nextQuest;
 
     // Kill quest
     public String targetEnemy;
