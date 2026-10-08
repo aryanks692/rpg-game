@@ -123,7 +123,7 @@ public class OBJ_GeneralStore extends SuperObject {
                 g2.fillRoundRect(screenX + pixelWidth/2 - 40, screenY + pixelHeight - 20, 80, 18, 6, 6);
                 g2.setFont(new Font("Arial", Font.BOLD, 10));
                 g2.setColor(Color.YELLOW);
-                g2.drawString("[E] General Store", screenX + pixelWidth/2 - 36, screenY + pixelHeight - 7);
+                    g2.drawString("[E] Buy Potion (25G)", screenX + pixelWidth/2 - 44, screenY + pixelHeight - 7);
             }
         }
     }

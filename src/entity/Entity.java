@@ -51,6 +51,12 @@ public abstract class Entity {
     public String[] dialogues = new String[0];
     public int dialogueIndex = 0;
 
+    // Paid service / choice support
+    public int serviceCost = 0;
+    public String serviceName = "";
+    public boolean awaitingChoice = false;
+    public int choiceDialogueIndex = -1;
+
     // Knockback
     public int knockbackX = 0;
     public int knockbackY = 0;
@@ -67,11 +73,56 @@ public abstract class Entity {
     }
 
     public void advanceDialogue() {
+        if (awaitingChoice) {
+            return;
+        }
         dialogueIndex++;
+        if (dialogueIndex == choiceDialogueIndex && serviceCost > 0) {
+            awaitingChoice = true;
+            return;
+        }
+        if (dialogueIndex >= dialogues.length) {
+            dialogueIndex = 0;
+            awaitingChoice = false;
+            gp.gameState = core.GameState.PLAY;
+        }
+    }
+
+    public Entity setService(int cost, String serviceName, int atDialogueIndex) {
+        this.serviceCost = cost;
+        this.serviceName = serviceName;
+        this.choiceDialogueIndex = atDialogueIndex;
+        return this;
+    }
+
+    public int getEffectiveServiceCost() {
+        if (gp == null || gp.player == null) return serviceCost;
+        return gp.player.getEffectivePrice(serviceCost);
+    }
+
+    public boolean tryPurchaseService() {
+        if (gp == null || gp.player == null) return false;
+        int price = getEffectiveServiceCost();
+        if (gp.player.gold >= price) {
+            gp.player.gold -= price;
+            gp.player.addSpending(price);
+            awaitingChoice = false;
+            onServicePurchased();
+            return true;
+        }
+        return false;
+    }
+
+    public void declineService() {
+        awaitingChoice = false;
+        dialogueIndex = choiceDialogueIndex + 1;
         if (dialogueIndex >= dialogues.length) {
             dialogueIndex = 0;
             gp.gameState = core.GameState.PLAY;
         }
+    }
+
+    protected void onServicePurchased() {
     }
 
     public abstract void update();

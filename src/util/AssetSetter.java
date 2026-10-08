@@ -97,8 +97,13 @@ public class AssetSetter {
                 ts * 88,
                 ts * 91,
                 "Welcome to the Honky-Tonk Cabaret, handsome!",
-                "Hear that rhythm? Watch me move on the main stage!",
-                "If you enjoy the dance, don't forget to tip your favorite dancer!");
+                "My Name is Lola ,I am a belly dancer watch my hips rise and belly flatten my navel ",
+                "Hear that rhythm? I've been dancing all night on the main stage!",
+                "How about you and I spend some quality time together, sugar?",
+                "I offer a full hour of private dancing... just for you.",
+                "Mmm, that was wonderful, darling. Come back anytime~",
+                "The show never stops here at the cabaret! *winks*");
+        gp.npcs[9].setService(1000, "Private Dance (1 hour)", 3);
 
         // Roxy — VIP Lounge Dancer
         gp.npcs[10] = new entity.ImageNPC(
@@ -108,9 +113,13 @@ public class AssetSetter {
                 "d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\lola_real_portrait.png",
                 ts * 94,
                 ts * 92,
-                "Hey there, cowboy... looking for a private VIP show?",
-                "Dusty Gulch gets wild after midnight!",
-                "Stay as long as you like, honey.");
+                "Hey there, cowboy... welcome to the VIP lounge.",
+                "Dusty Gulch gets wild after midnight, you know?",
+                "I can see it in your eyes... you want the VIP treatment.",
+                "One full hour of my exclusive private show — just you and me.",
+                "Ooh, you really know how to treat a lady, sugar!",
+                "Don't be a stranger now, handsome. I'll be waiting~");
+        gp.npcs[10].setService(1000, "VIP Private Show (1 hour)", 3);
 
         gp.npcs[11] = new NPC(gp, "Prospector Pete", "cowboy",
                 ts * 94, ts * 21,

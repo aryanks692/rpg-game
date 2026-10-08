@@ -125,8 +125,77 @@ public class DialogueUI {
         String visible = fullText.substring(0, Math.min(charsRevealed, fullText.length()));
         drawWrapped(g2, visible, textX, boxY + 42, boxW - portW - 42, 18);
 
-        // "Continue" prompt — flash when text is fully shown
-        if (charsRevealed >= fullText.length() && (globalTimer / 22) % 2 == 0) {
+        if (entity.awaitingChoice && entity.serviceCost > 0) {
+            int baseCost = entity.serviceCost;
+            int effCost = entity.getEffectiveServiceCost();
+            int discount = 0;
+            String tier = "New";
+            int hpBonus = 25;
+            if (gp.player != null) {
+                discount = gp.player.getCreditDiscountPercent();
+                tier = gp.player.getCreditTier();
+                hpBonus = gp.player.getHpBonusPerPurchase();
+            }
+            int playerGold = (gp.player != null) ? gp.player.gold : 0;
+            boolean canAfford = playerGold >= effCost;
+
+            int offerBoxX = boxX + portW + 12;
+            int offerBoxY = boxY + boxH - 64;
+            int offerBoxW = boxW - portW - 32;
+            int offerBoxH = 54;
+
+            Color panelBg = new Color(40, 10, 25, 230);
+            Color borderCol = new Color(255, 180, 80);
+            if ("Gold".equals(tier)) { panelBg = new Color(50, 40, 10, 230); borderCol = new Color(255, 215, 80); }
+            else if ("Platinum".equals(tier)) { panelBg = new Color(20, 25, 50, 230); borderCol = new Color(200, 220, 255); }
+
+            g2.setColor(panelBg);
+            g2.fillRoundRect(offerBoxX, offerBoxY, offerBoxW, offerBoxH, 10, 10);
+            g2.setStroke(UIConstants.STROKE_BORDER);
+            g2.setColor(borderCol);
+            g2.drawRoundRect(offerBoxX, offerBoxY, offerBoxW, offerBoxH, 10, 10);
+
+            g2.setFont(UIFonts.BODY_B);
+            if (discount > 0 && effCost < baseCost) {
+                g2.setColor(UIConstants.COL_TEXT_DIM);
+                g2.drawString("\u2665 " + entity.serviceName + " — " + baseCost + "g",
+                               offerBoxX + 12, offerBoxY + 18);
+                FontMetrics fm = g2.getFontMetrics();
+                int strW = fm.stringWidth("" + baseCost + "g");
+                int priceX = offerBoxX + 12 + fm.stringWidth("\u2665 " + entity.serviceName + " — ");
+                g2.setColor(new Color(255, 80, 80));
+                g2.drawLine(priceX, offerBoxY + 14, priceX + strW, offerBoxY + 14);
+                g2.setColor(UIConstants.COL_GOLD);
+                g2.drawString("  " + effCost + " Gold (-" + discount + "%)",
+                               offerBoxX + 12, offerBoxY + 18);
+            } else {
+                g2.setColor(UIConstants.COL_GOLD);
+                g2.drawString("\u2665 " + entity.serviceName + " — " + effCost + " Gold",
+                               offerBoxX + 12, offerBoxY + 18);
+            }
+
+            g2.setColor(canAfford ? new Color(180, 255, 180) : new Color(255, 120, 120));
+            g2.setFont(UIFonts.SMALL);
+            g2.drawString("Your Gold: " + playerGold, offerBoxX + 12, offerBoxY + 34);
+
+            g2.setColor(new Color(160, 220, 180));
+            g2.drawString("+ " + hpBonus + " HP", offerBoxX + 100, offerBoxY + 34);
+
+            Color tierColor = UIConstants.COL_TEXT_DIM;
+            if ("Platinum".equals(tier)) tierColor = new Color(200, 220, 255);
+            else if ("Gold".equals(tier)) tierColor = new Color(255, 215, 80);
+            else if ("Silver".equals(tier)) tierColor = new Color(200, 200, 210);
+            else if ("Bronze".equals(tier)) tierColor = new Color(205, 127, 50);
+            g2.setColor(tierColor);
+            g2.drawString("\u2605 " + tier + " Member", offerBoxX + 12, offerBoxY + 48);
+
+            if ((globalTimer / 22) % 2 == 0) {
+                g2.setFont(UIFonts.SMALL_B);
+                g2.setColor(new Color(255, 255, 150));
+                g2.drawString("[Y] Accept   [N] Decline",
+                               offerBoxX + offerBoxW - 165, offerBoxY + 48);
+            }
+        } else if (charsRevealed >= fullText.length() && (globalTimer / 22) % 2 == 0) {
             g2.setFont(UIFonts.SMALL_B);
             g2.setColor(new Color(170, 170, 255));
             g2.drawString("\u25bc Press E to continue",

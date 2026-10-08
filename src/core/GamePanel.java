@@ -191,11 +191,66 @@ public class GamePanel extends JPanel implements Runnable {
                 player.update();
                 break;
             case DIALOGUE:
-                if (keyHandler.interactJustPressed || keyHandler.enterJustPressed) {
-                    if (currentDialogueEntity != null) {
-                        currentDialogueEntity.advanceDialogue();
+                if (currentDialogueEntity != null && currentDialogueEntity.awaitingChoice) {
+                    if (keyHandler.yesJustPressed) {
+                        int price = currentDialogueEntity.getEffectiveServiceCost();
+                        int discount = player.getCreditDiscountPercent();
+                        int hpBonus = player.getHpBonusPerPurchase();
+                        if (currentDialogueEntity.tryPurchaseService()) {
+                            player.life = Math.min(player.maxLife, player.life + hpBonus);
+                            String tier = player.getCreditTier();
+                            String notif = "Paid " + price + " gold for " + currentDialogueEntity.serviceName + "! +" + hpBonus + " HP";
+                            if (discount > 0) notif += " (" + discount + "% " + tier + " Discount!)";
+                            notif += " [Credit: " + player.creditScore + "]";
+                            ui.showNotification(notif);
+                            if (player.lastTierUp != null) {
+                                String t = player.lastTierUp;
+                                int nextTarget = 0;
+                                if ("Bronze".equals(t))   nextTarget = Player.CREDIT_BRONZE;
+                                if ("Silver".equals(t))   nextTarget = Player.CREDIT_SILVER;
+                                if ("Gold".equals(t))     nextTarget = Player.CREDIT_GOLD;
+                                if ("Platinum".equals(t)) nextTarget = Player.CREDIT_PLATINUM;
+                                int d = player.getCreditDiscountPercent();
+                                int h = player.getHpBonusPerPurchase();
+                                ui.showNotification("\u2605\u2605\u2605 CREDIT TIER UP: " + t + "! -" + d + "% discount, +" + h + " HP per visit!");
+                                if ("Platinum".equals(t)) {
+                                    player.maxLife += 25;
+                                    player.life = player.maxLife;
+                                    player.attackDamage += 2;
+                                    ui.showNotification("PLATINUM VIP PERK: +25 Max HP, +2 ATK, Full Heal!");
+                                } else if ("Gold".equals(t)) {
+                                    player.maxLife += 15;
+                                    player.life = player.maxLife;
+                                    ui.showNotification("GOLD PERK: +15 Max HP, Full Heal!");
+                                } else if ("Silver".equals(t)) {
+                                    player.potionCount += 2;
+                                    ui.showNotification("SILVER PERK: +2 Free Potions!");
+                                } else if ("Bronze".equals(t)) {
+                                    player.potionCount += 1;
+                                    ui.showNotification("BRONZE PERK: +1 Free Potion!");
+                                }
+                                player.lastTierUp = null;
+                            }
+                            currentDialogueEntity.dialogueIndex = currentDialogueEntity.choiceDialogueIndex + 1;
+                            if (currentDialogueEntity.dialogueIndex >= currentDialogueEntity.dialogues.length) {
+                                currentDialogueEntity.dialogueIndex = 0;
+                                gameState = GameState.PLAY;
+                            }
+                        } else {
+                            ui.showNotification("Not enough gold! You need " + price + " gold.");
+                        }
+                        keyHandler.clearJustPressed();
+                    } else if (keyHandler.noJustPressed || keyHandler.interactJustPressed || keyHandler.enterJustPressed) {
+                        currentDialogueEntity.declineService();
+                        keyHandler.clearJustPressed();
                     }
-                    keyHandler.clearJustPressed();
+                } else {
+                    if (keyHandler.interactJustPressed || keyHandler.enterJustPressed) {
+                        if (currentDialogueEntity != null) {
+                            currentDialogueEntity.advanceDialogue();
+                        }
+                        keyHandler.clearJustPressed();
+                    }
                 }
                 break;
             case GAME_OVER:

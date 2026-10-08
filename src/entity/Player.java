@@ -16,13 +16,21 @@ public class Player extends Entity {
     // Stats
     public int attackDamage = 10;
     public int defense = 0;
-    public int gold = 50;
+    public int gold = 2500;
     public int potionCount = 0;
     public int level = 1;
     public int xp = 0;
     public int xpToLevel = 100;
     public boolean hasWeapon = false;
     public boolean hasShield = false;
+
+    // Credit Score (Social Standing)
+    public int creditScore = 0;
+    public int totalSpent = 0;
+    public static final int CREDIT_BRONZE = 500;
+    public static final int CREDIT_SILVER = 2000;
+    public static final int CREDIT_GOLD = 5000;
+    public static final int CREDIT_PLATINUM = 10000;
 
     // Attack state
     public boolean attacking = false;
@@ -480,6 +488,47 @@ public class Player extends Entity {
             life = maxLife;
             attackDamage += 3;
         }
+    }
+
+    public String lastTierUp = null;
+
+    public void addSpending(int goldAmount) {
+        totalSpent += goldAmount;
+        String oldTier = getCreditTier();
+        creditScore = totalSpent;
+        String newTier = getCreditTier();
+        if (!newTier.equals(oldTier)) {
+            lastTierUp = newTier;
+        }
+    }
+
+    public String getCreditTier() {
+        if (creditScore >= CREDIT_PLATINUM) return "Platinum";
+        if (creditScore >= CREDIT_GOLD)     return "Gold";
+        if (creditScore >= CREDIT_SILVER)   return "Silver";
+        if (creditScore >= CREDIT_BRONZE)   return "Bronze";
+        return "New";
+    }
+
+    public int getCreditDiscountPercent() {
+        if (creditScore >= CREDIT_PLATINUM) return 30;
+        if (creditScore >= CREDIT_GOLD)     return 20;
+        if (creditScore >= CREDIT_SILVER)   return 10;
+        if (creditScore >= CREDIT_BRONZE)   return 5;
+        return 0;
+    }
+
+    public int getEffectivePrice(int basePrice) {
+        int discount = getCreditDiscountPercent();
+        return Math.max(1, basePrice * (100 - discount) / 100);
+    }
+
+    public int getHpBonusPerPurchase() {
+        if (creditScore >= CREDIT_PLATINUM) return 60;
+        if (creditScore >= CREDIT_GOLD)     return 50;
+        if (creditScore >= CREDIT_SILVER)   return 40;
+        if (creditScore >= CREDIT_BRONZE)   return 30;
+        return 25;
     }
 
     @Override

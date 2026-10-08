@@ -306,6 +306,7 @@ public class NPC extends Entity {
 
     public void startDialogue() {
         dialogueIndex = 0; // reset Entity's dialogueIndex
+        awaitingChoice = false;
         gp.currentDialogueEntity = this;
         gp.gameState = core.GameState.DIALOGUE;
     }

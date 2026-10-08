@@ -62,7 +62,7 @@ public class HUD {
 
     // ── Stats panel (top-right) ────────────────────────────────────────────────
     private void drawStatsPanel(Graphics2D g2, Player p) {
-        int pw = 158, ph = 84;
+        int pw = 168, ph = 106;
         int px = gp.screenWidth - pw - 8, py = 8;
         UIPanel.drawPanel(g2, px, py, pw, ph);
 
@@ -94,12 +94,12 @@ public class HUD {
 
         // Potion icon + count
         g2.setColor(new Color(220, 60, 60));
-        g2.fillRoundRect(lx + 82, py + 29, 11, 12, 3, 3);
+        g2.fillRoundRect(lx + 92, py + 29, 11, 12, 3, 3);
         g2.setColor(Color.WHITE);
-        g2.drawString("+", lx + 84, py + 39);
+        g2.drawString("+", lx + 94, py + 39);
 
         g2.setColor(new Color(160, 220, 180));
-        g2.drawString("x" + p.potionCount, lx + 98, py + 40);
+        g2.drawString("x" + p.potionCount, lx + 108, py + 40);
 
         // Row 3: ATK / DEF
         g2.setColor(UIConstants.COL_TEXT_BAD);
@@ -113,6 +113,33 @@ public class HUD {
         g2.drawString(p.hasWeapon ? "Sword \u2713" : "Sword \u2715", lx, py + 74);
         g2.setColor(p.hasShield ? UIConstants.COL_TEXT_GOOD : UIConstants.COL_TEXT_DIM);
         g2.drawString(p.hasShield ? "Shield \u2713" : "Shield \u2715", lx + 72, py + 74);
+
+        // Row 5: Credit Score / Tier
+        String tier = p.getCreditTier();
+        Color tierColor = getTierColor(tier);
+        g2.setFont(UIFonts.SMALL_B);
+        g2.setColor(new Color(180, 140, 220));
+        g2.drawString("\u2605", lx, py + 96);
+        g2.setColor(tierColor);
+        g2.drawString(tier + " Credit", lx + 12, py + 96);
+        g2.setColor(UIConstants.COL_TEXT_DIM);
+        g2.setFont(UIFonts.SMALL);
+        g2.drawString("" + p.creditScore, lx + 78, py + 96);
+        int disc = p.getCreditDiscountPercent();
+        if (disc > 0) {
+            g2.setColor(UIConstants.COL_TEXT_GOOD);
+            g2.drawString("-" + disc + "%", lx + 115, py + 96);
+        }
+    }
+
+    private Color getTierColor(String tier) {
+        switch (tier) {
+            case "Platinum": return new Color(200, 220, 255);
+            case "Gold":     return new Color(255, 215, 80);
+            case "Silver":   return new Color(200, 200, 210);
+            case "Bronze":   return new Color(205, 127, 50);
+            default:         return UIConstants.COL_TEXT_DIM;
+        }
     }
 
     // ── Zone label (bottom centre) ─────────────────────────────────────────────

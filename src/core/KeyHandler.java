@@ -9,6 +9,7 @@ public class KeyHandler implements KeyListener {
     public boolean inventoryPressed, questPressed, pausePressed;
     public boolean enterPressed;
     public boolean savePressed, newGamePressed;
+    public boolean yesPressed, noPressed;
 
     // One-shot flags (set once, consumed by game logic)
     public boolean attackJustPressed;
@@ -20,6 +21,8 @@ public class KeyHandler implements KeyListener {
     public boolean enterJustPressed;
     public boolean saveJustPressed;
     public boolean newGameJustPressed;
+    public boolean yesJustPressed;
+    public boolean noJustPressed;
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -44,6 +47,8 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ENTER:  if (!enterPressed) enterJustPressed = true; enterPressed = true; break;
             case KeyEvent.VK_F5:     if (!savePressed) saveJustPressed = true; savePressed = true; break;
             case KeyEvent.VK_R:      if (!newGamePressed) newGameJustPressed = true; newGamePressed = true; break;
+            case KeyEvent.VK_Y:      if (!yesPressed) yesJustPressed = true; yesPressed = true; break;
+            case KeyEvent.VK_N:      if (!noPressed) noJustPressed = true; noPressed = true; break;
         }
     }
 
@@ -67,6 +72,8 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ENTER:  enterPressed = false; break;
             case KeyEvent.VK_F5:     savePressed = false; break;
             case KeyEvent.VK_R:      newGamePressed = false; break;
+            case KeyEvent.VK_Y:      yesPressed = false; break;
+            case KeyEvent.VK_N:      noPressed = false; break;
         }
     }
 
@@ -79,5 +86,7 @@ public class KeyHandler implements KeyListener {
         enterJustPressed = false;
         saveJustPressed = false;
         newGameJustPressed = false;
+        yesJustPressed = false;
+        noJustPressed = false;
     }
 }
