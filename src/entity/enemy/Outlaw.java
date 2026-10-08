@@ -1,5 +1,5 @@
 package entity.enemy;
-
+import combat.Projectile;
 import core.GamePanel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,9 +11,9 @@ public class Outlaw extends Enemy {
         maxLife = 70;
         life = maxLife;
         speed = 2;
-        attackDamage = 16;
-        attackRange = (int)(gp.tileSize * 1.6);
-        attackCooldownMax = 65;
+        attackDamage = 14;
+        attackRange = gp.tileSize * 6;      // Ranged gun distance (6 tiles)
+        attackCooldownMax = 70;            // Cadence between shots (~1.1 seconds)
         xpReward = 40;
         goldReward = 30;
         invincibleDuration = 18;
@@ -120,5 +120,35 @@ public class Outlaw extends Enemy {
 
         g2.dispose();
         return img;
+    }
+            @Override
+    protected void performAttack(double dx, double dy, int dist) {
+        // 1. Aim toward the player (supports both straight & diagonal angles)
+        double absDx = Math.abs(dx);
+        double absDy = Math.abs(dy);
+        String shootDir;
+
+        if (absDx > 0.4 * absDy && absDy > 0.4 * absDx) {
+            String v = dy > 0 ? "down" : "up";
+            String h = dx > 0 ? "right" : "left";
+            shootDir = v + "-" + h; // "up-right", "up-left", "down-right", "down-left"
+        } else if (absDx > absDy) {
+            shootDir = dx > 0 ? "right" : "left";
+        } else {
+            shootDir = dy > 0 ? "down" : "up";
+        }
+
+        // 2. Turn Outlaw to face player while shooting
+        if (absDx > absDy) {
+            direction = dx > 0 ? "right" : "left";
+        } else {
+            direction = dy > 0 ? "down" : "up";
+        }
+
+        // 3. Fire bullet from gun position
+        int bx = worldX + width / 2 - 8;
+        int by = worldY + height / 2 - 8;
+        gp.projectiles.add(new Projectile(bx, by, shootDir, attackDamage, this));
+    
     }
 }

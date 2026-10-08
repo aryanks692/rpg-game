@@ -80,11 +80,26 @@ public class HUD {
                          new Color(30, 160, 80));
 
         // Row 2: Gold / Potion
+        // Gold coin icon + count
+        g2.setColor(UIConstants.COL_GOLD);
+        g2.fillOval(lx, py + 29, 12, 12);
+        g2.setColor(new Color(180, 140, 20));
+        g2.drawOval(lx, py + 29, 12, 12);
+        g2.setColor(Color.WHITE);
+        g2.fillOval(lx + 3, py + 32, 3, 3);
+
         g2.setFont(UIFonts.HUD);
         g2.setColor(UIConstants.COL_GOLD);
-        g2.drawString("\uD83D\uDCB0 " + p.gold, lx, py + 40);
+        g2.drawString("Gold: " + p.gold, lx + 16, py + 40);
+
+        // Potion icon + count
+        g2.setColor(new Color(220, 60, 60));
+        g2.fillRoundRect(lx + 82, py + 29, 11, 12, 3, 3);
+        g2.setColor(Color.WHITE);
+        g2.drawString("+", lx + 84, py + 39);
+
         g2.setColor(new Color(160, 220, 180));
-        g2.drawString("\uD83E\uDDEA " + p.potionCount, lx + 80, py + 40);
+        g2.drawString("x" + p.potionCount, lx + 98, py + 40);
 
         // Row 3: ATK / DEF
         g2.setColor(UIConstants.COL_TEXT_BAD);

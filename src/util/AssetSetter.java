@@ -36,9 +36,10 @@ public class AssetSetter {
                 ts * 14, ts * (16 + rowOff),
                 "The Crystal Caves to the south are fascinating.",
                 "Legend says a powerful artifact rests within, guarded by the Dark Knight.",
-                "Many adventurers entered those caves, but few returned.");
+                "Many adventurers entered those caves, but few returned.")
+                .setPortrait("d:\\New folder\\.gemini\\antigravity\\scratch\\ZeldaRPG\\src\\res\\npc\\stian-opsahl-portrait-study0401.jpg");
 
-        gp.npcs[3] = new NPC(gp, "Bren", "villager",
+        gp.npcs[3] = new NPC(gp, "Jeffrey Epstein", "villager",
                 ts * 19, ts * (11 + rowOff),
                 "Good day! Lovely weather for farming, wouldn't you say?",
                 "Well, it would be, if those dreadful skeletons weren't about.",
@@ -177,7 +178,7 @@ public class AssetSetter {
     public void setupObjects() {
         int ts = gp.tileSize;
         int rowOff = 30;
-        gp.objects = new SuperObject[32];
+        gp.objects = new SuperObject[64];
 
         // Village items (Shifted)
         gp.objects[0] = new OBJ_Potion(gp);
@@ -320,5 +321,10 @@ public class AssetSetter {
         gp.objects[31] = new OBJ_Potion(gp);
         gp.objects[31].worldX = ts * 94;
         gp.objects[31].worldY = ts * 20;
+
+        // Starter Gold Coins in Village directly beside player spawn (ts * 10, ts * 40)
+        gp.objects[32] = new object.OBJ_Coin(gp, ts * 11, ts * 40, 25);
+        gp.objects[33] = new object.OBJ_Coin(gp, ts * 12, ts * 40, 50);
+        gp.objects[34] = new object.OBJ_Coin(gp, ts * 10, ts * 41, 100);
     }
 }

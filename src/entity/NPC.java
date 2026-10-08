@@ -4,6 +4,8 @@ import core.GamePanel;
 import core.GameState;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class NPC extends Entity {
     private int wanderTimer = 0;
@@ -43,6 +45,22 @@ public class NPC extends Entity {
             skinColor = new Color(255, 210, 170);
         }
         buildSprites();
+    }
+
+    public NPC setPortrait(String portraitPath) {
+        if (portraitPath != null) {
+            try {
+                File file = new File(portraitPath);
+                if (!file.exists()) {
+                    File fallback = new File("src/res/npc/" + file.getName());
+                    if (fallback.exists()) file = fallback;
+                }
+                this.portraitImage = ImageIO.read(file);
+            } catch (Exception e) {
+                System.err.println("Failed to load portrait for " + name + ": " + portraitPath);
+            }
+        }
+        return this;
     }
 
     private void buildSprites() {

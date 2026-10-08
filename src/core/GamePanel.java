@@ -288,7 +288,8 @@ public class GamePanel extends JPanel implements Runnable {
                 it.remove();
                 continue;
             }
-            if (p.user == player && enemies != null) {
+                       if (p.user == player && enemies != null) {
+                // Player's projectile hits enemies
                 for (int i = 0; i < enemies.length; i++) {
                     Enemy e = enemies[i];
                     if (e != null && e.alive && !e.readyToRemove) {
@@ -298,6 +299,19 @@ public class GamePanel extends JPanel implements Runnable {
                             damageNumbers.add(new DamageNumber(e.worldX + 16, e.worldY, p.damage, false));
                             break;
                         }
+                    }
+                }
+            } else if (p.user != player && player != null && player.alive) {
+                // Enemy's bullet hits player
+                if (p.getWorldCollisionBox().intersects(player.getWorldCollisionBox())) {
+                    p.alive = false;
+                    if (player.blocking) {
+                        // Shield blocks the bullet!
+                        damageNumbers.add(new DamageNumber(player.worldX + 16, player.worldY, 0, false));
+                    } else {
+                        int dmg = Math.max(1, p.damage - player.defense);
+                        player.takeDamage(dmg);
+                        damageNumbers.add(new DamageNumber(player.worldX + 16, player.worldY, dmg, false));
                     }
                 }
             }

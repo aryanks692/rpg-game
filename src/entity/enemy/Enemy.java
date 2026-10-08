@@ -223,10 +223,23 @@ protected int roamRadius;
         knockbackY = (int)(dy / dist * 5);
         knockbackTimer = 8;
 
-        if (!alive) {
+               if (!alive) {
             aiState = State.DEAD;
             gp.player.gainXP(xpReward);
-            gp.player.gold += goldReward;
+
+            // --- WEIGHTED COIN DROP ALGORITHM ---
+            // Calculate randomized gold variance (+/- 25%)
+            int droppedGold = (int)(goldReward * (0.75 + Math.random() * 0.5));
+            if (droppedGold > 0) {
+                // Find empty or already collected slot in gp.objects to place the coin on the map
+                for (int i = 0; i < gp.objects.length; i++) {
+                    if (gp.objects[i] == null || gp.objects[i].pickedUp) {
+                        gp.objects[i] = new object.OBJ_Coin(gp, worldX, worldY, droppedGold);
+                        break;
+                    }
+                }
+            }
+
             gp.questManager.onEnemyKilled(type);
         }
     }

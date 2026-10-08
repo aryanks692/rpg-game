@@ -246,12 +246,34 @@ public class Player extends Entity {
         }
 
         // Fire logic
+                // Fire logic
         if (fireCooldown > 0) fireCooldown--;
         if (key.firePressed && fireCooldown <= 0) {
             fireCooldown = FIRE_RATE;
-            int px = worldX + width/2 - 8;
-            int py = worldY + height/2 - 8;
-            gp.projectiles.add(new Projectile(px, py, direction, attackDamage, this));
+            int px = worldX + width / 2 - 8;
+            int py = worldY + height / 2 - 8;
+
+            // Determine shooting direction based on currently held movement keys
+            String shootDir = direction; // Fallback to current facing direction if no keys held
+            if (key.upPressed && key.leftPressed) {
+                shootDir = "up-left";
+            } else if (key.upPressed && key.rightPressed) {
+                shootDir = "up-right";
+            } else if (key.downPressed && key.leftPressed) {
+                shootDir = "down-left";
+            } else if (key.downPressed && key.rightPressed) {
+                shootDir = "down-right";
+            } else if (key.upPressed) {
+                shootDir = "up";
+            } else if (key.downPressed) {
+                shootDir = "down";
+            } else if (key.leftPressed) {
+                shootDir = "left";
+            } else if (key.rightPressed) {
+                shootDir = "right";
+            }
+
+            gp.projectiles.add(new Projectile(px, py, shootDir, attackDamage, this));
         }
         if (attacking) {
             attackTimer++;
@@ -376,6 +398,12 @@ public class Player extends Entity {
                         chest.onPickup(this);
                         return;
                     }
+                } else if (obj instanceof object.OBJ_Coin) {
+                    if (interactZone.intersects(obj.getWorldCollisionBox())) {
+                        obj.onPickup(this);
+                        obj.pickedUp = true;
+                        return;
+                    }
                 } else if (!(obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield)) {
                     if (interactZone.intersects(obj.getWorldCollisionBox())) {
                         obj.onPickup(this);
@@ -388,14 +416,18 @@ public class Player extends Entity {
 
     private void detectPickups() {
         if (gp.objects == null) return;
-        Rectangle playerBox = getWorldCollisionBox();
+        // Generous pickup zone so touching or stepping near items instantly collects them
+        Rectangle playerBox = new Rectangle(worldX - 6, worldY - 6, width + 12, height + 12);
         for (object.SuperObject obj : gp.objects) {
             if (obj == null || obj.pickedUp) continue;
-            // Only collect actual items from ground (Potion, Sword, Shield)
-            if (obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield) {
+            // Collect items from ground (Potion, Sword, Shield, Coin)
+            if (obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword ||
+                obj instanceof object.OBJ_Shield || obj instanceof object.OBJ_Coin) {
                 if (playerBox.intersects(obj.getWorldCollisionBox())) {
                     obj.onPickup(this);
-                    inventory.add(obj.name);
+                    if (!(obj instanceof object.OBJ_Coin)) {
+                        inventory.add(obj.name);
+                    }
                     obj.pickedUp = true;
                 }
             }

@@ -128,8 +128,17 @@ public class OBJ_GeneralStore extends SuperObject {
         }
     }
 
-    @Override
+      @Override
     public void onPickup(entity.Player player) {
-        gp.ui.showNotification("Dusty Gulch General Store");
+        int potionPrice = 25;
+
+        // Atomic Transaction Check
+        if (player.gold >= potionPrice) {
+            player.gold -= potionPrice;
+            player.potionCount++;
+            gp.ui.showNotification("Purchased Potion! (-" + potionPrice + " Gold)");
+        } else {
+            gp.ui.showNotification("Need " + potionPrice + " Gold to buy Potion!");
+        }
     }
 }
