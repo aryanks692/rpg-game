@@ -2,6 +2,7 @@ package core;
 
 public enum GameState {
     TITLE,
+    CUTSCENE,
     PLAY,
     PAUSE,
     DIALOGUE,

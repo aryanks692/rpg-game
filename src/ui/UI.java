@@ -23,6 +23,7 @@ public class UI {
     private final QuestLogUI questLogUI;
     private final PauseMenu pauseMenu;
     private final TitleScreen titleScreen;
+    private final CutsceneScreen cutsceneScreen;
     private final SaveMenu saveMenu;
     private final DeathScreen deathScreen;
     private final WinScreen winScreen;
@@ -38,6 +39,7 @@ public class UI {
         this.questLogUI = new QuestLogUI(gp);
         this.pauseMenu = new PauseMenu(gp);
         this.titleScreen = new TitleScreen(gp);
+        this.cutsceneScreen = new CutsceneScreen(gp);
         this.saveMenu = new SaveMenu(gp);
         this.deathScreen = new DeathScreen(gp);
         this.winScreen = new WinScreen(gp);
@@ -56,6 +58,9 @@ public class UI {
         switch (gp.gameState) {
             case TITLE:
                 titleScreen.update();
+                break;
+            case CUTSCENE:
+                cutsceneScreen.update();
                 break;
             case PAUSE:
                 pauseMenu.update();
@@ -79,6 +84,9 @@ public class UI {
         switch (gp.gameState) {
             case TITLE:
                 titleScreen.draw(g2);
+                break;
+            case CUTSCENE:
+                cutsceneScreen.draw(g2);
                 break;
             case PLAY:
                 drawPlayBase(g2);

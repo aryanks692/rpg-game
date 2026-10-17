@@ -49,6 +49,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/ui/QuestLogUI.java ^
   src/ui/PauseMenu.java ^
   src/ui/TitleScreen.java ^
+  src/ui/CutsceneScreen.java ^
   src/ui/SaveMenu.java ^
   src/ui/DeathScreen.java ^
   src/ui/WinScreen.java ^

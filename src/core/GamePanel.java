@@ -190,12 +190,14 @@ public class GamePanel extends JPanel implements Runnable {
                     if (saveManager.hasAnySave()) {
                         gameState = GameState.LOAD_MENU;
                     } else {
-                        gameState = GameState.PLAY;
+                        beginIntroCutscene();
                     }
                     keyHandler.clearJustPressed();
                 }
                 if (keyHandler.newGameJustPressed) {
-                    gameState = GameState.SAVE_MENU;
+                    // Start a brand-new game: rebuild the world, then play the intro.
+                    resetGame();
+                    beginIntroCutscene();
                     keyHandler.clearJustPressed();
                 }
                 break;
@@ -446,6 +448,15 @@ public class GamePanel extends JPanel implements Runnable {
         gameState = GameState.TITLE;
     }
 
+    /** Plays the intro story cutscene before a brand-new game begins. */
+    public void beginIntroCutscene() {
+        playTimeTicks = 0;
+        activeInterior = TileManager.INTERIOR_NONE;
+        currentMap = 0;
+        gameState = GameState.CUTSCENE;
+        keyHandler.clearJustPressed();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -461,7 +472,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        if (gameState == GameState.TITLE) {
+        if (gameState == GameState.TITLE || gameState == GameState.CUTSCENE) {
             ui.draw(g2);
         } else {
             // Draw world
