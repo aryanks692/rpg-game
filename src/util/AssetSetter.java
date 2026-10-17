@@ -191,7 +191,7 @@ public class AssetSetter {
     public void setupObjects() {
         int ts = gp.tileSize;
         int rowOff = 30;
-        gp.objects = new SuperObject[64];
+        gp.objects = new SuperObject[128];
 
         // Village items (Shifted)
         gp.objects[0] = new OBJ_Potion(gp);
@@ -345,9 +345,75 @@ public class AssetSetter {
         gp.objects[35].worldX = ts * 77;
         gp.objects[35].worldY = ts * 19;
 
-        // Ancient Rune Altar — inside the Ancient Ruins (just south of the northern entrance)
+        // Ancient Rune Altar — inside the Central Ruin of Ancient Ruins
         gp.objects[36] = new OBJ_RunePuzzle(gp);
-        gp.objects[36].worldX = ts * 36;
-        gp.objects[36].worldY = ts * 71;
+        gp.objects[36].worldX = ts * 58;
+        gp.objects[36].worldY = ts * 78;
+
+        // --- ANCIENT RUINS STRUCTURES & COLUMNS (Matching Reference Map) ---
+        // Sunken Classical Temple Sanctuary (West Lake)
+        gp.objects[37] = new OBJ_SunkenTemple(gp);
+        gp.objects[37].worldX = ts * 36;
+        gp.objects[37].worldY = ts * 84;
+
+        // Sunken Columns rising from the lake water
+        gp.objects[38] = new OBJ_AncientColumn(gp, true);
+        gp.objects[38].worldX = ts * 34;
+        gp.objects[38].worldY = ts * 75;
+
+        gp.objects[39] = new OBJ_AncientColumn(gp, true);
+        gp.objects[39].worldX = ts * 37;
+        gp.objects[39].worldY = ts * 75;
+
+        gp.objects[40] = new OBJ_AncientColumn(gp, true);
+        gp.objects[40].worldX = ts * 40;
+        gp.objects[40].worldY = ts * 75;
+
+        gp.objects[41] = new OBJ_AncientColumn(gp, true);
+        gp.objects[41].worldX = ts * 34;
+        gp.objects[41].worldY = ts * 79;
+
+        gp.objects[42] = new OBJ_AncientColumn(gp, true);
+        gp.objects[42].worldX = ts * 35;
+        gp.objects[42].worldY = ts * 85;
+
+        gp.objects[43] = new OBJ_AncientColumn(gp, true);
+        gp.objects[43].worldX = ts * 41;
+        gp.objects[43].worldY = ts * 79;
+
+        // Standing Columns on the Plaza
+        gp.objects[44] = new OBJ_AncientColumn(gp, false);
+        gp.objects[44].worldX = ts * 50;
+        gp.objects[44].worldY = ts * 73;
+
+        gp.objects[45] = new OBJ_AncientColumn(gp, false);
+        gp.objects[45].worldX = ts * 57;
+        gp.objects[45].worldY = ts * 73;
+
+        gp.objects[46] = new OBJ_AncientColumn(gp, false);
+        gp.objects[46].worldX = ts * 67;
+        gp.objects[46].worldY = ts * 73;
+
+        // Ancient Guardian Statues on Pedestals
+        gp.objects[47] = new OBJ_RuinStatue(gp);
+        gp.objects[47].worldX = ts * 51;
+        gp.objects[47].worldY = ts * 82;
+
+        gp.objects[48] = new OBJ_RuinStatue(gp);
+        gp.objects[48].worldX = ts * 68;
+        gp.objects[48].worldY = ts * 73;
+
+        gp.objects[49] = new OBJ_RuinStatue(gp);
+        gp.objects[49].worldX = ts * 74;
+        gp.objects[49].worldY = ts * 90;
+
+        // Hidden Treasure Chests in the Ruins
+        gp.objects[50] = new OBJ_Chest(gp, "Ancient Relic & Gold", 300);
+        gp.objects[50].worldX = ts * 52;
+        gp.objects[50].worldY = ts * 78;
+
+        gp.objects[51] = new OBJ_Chest(gp, "Sun Guardian Seal & Gold", 500);
+        gp.objects[51].worldX = ts * 75;
+        gp.objects[51].worldY = ts * 91;
     }
 }

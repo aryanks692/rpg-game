@@ -505,10 +505,135 @@ public class TileManager {
         for (int c = 9; c < 28; c++) { mapTileNum[c][38+rowOff] = CAVE_WALL; mapTileNum[c][H-2] = CAVE_WALL; }
         // 1-tile wide cave mouth; the columns either side stay CAVE_WALL so the gate's stone pillars are solid
         mapTileNum[18][38+rowOff] = CAVE_FLOOR;
-        for (int c = 30; c < W-1; c++) for (int r = 38+rowOff; r < H-1; r++) mapTileNum[c][r] = RUIN_FLOOR;
-        for (int c = 32; c < W-2; c += 7) for (int r = 40+rowOff; r < H-3; r += 7) mapTileNum[c][r] = RUIN_WALL;
-        for (int r = 38+rowOff; r < H-1; r++) mapTileNum[W-2][r] = RUIN_WALL;
-        for (int c = 28; c < 45; c++) for (int r = 29+rowOff; r < 38+rowOff; r++) mapTileNum[c][r] = SAND;
+        // Base ground for Ancient Ruins: Dark Grass & Pine Forest perimeter
+        for (int c = 28; c < 78; c++) {
+            for (int r = 68; r < H - 1; r++) {
+                mapTileNum[c][r] = DARK_GRASS;
+            }
+        }
+
+        // Perimeter Pine Trees (North, East, South borders)
+        for (int c = 28; c <= 78; c++) {
+            mapTileNum[c][68] = TREE;
+            mapTileNum[c][69] = TREE;
+            mapTileNum[c][H - 2] = TREE;
+        }
+        for (int r = 68; r < H - 1; r++) {
+            mapTileNum[77][r] = TREE;
+            mapTileNum[78][r] = TREE;
+        }
+
+        // 1. FLOODED LAKE (West half: Cols 30-46, Rows 72-91)
+        for (int c = 30; c <= 46; c++) {
+            for (int r = 72; r <= 91; r++) {
+                mapTileNum[c][r] = WATER_A;
+            }
+        }
+
+        // Shoreline sandy banks wrapping the water
+        for (int r = 72; r <= 86; r++) {
+            mapTileNum[47][r] = SAND;
+            mapTileNum[48][r] = SAND;
+        }
+        for (int c = 32; c <= 46; c++) {
+            mapTileNum[c][71] = SAND;
+        }
+
+        // Broken Bridge spanning across the lake water
+        for (int c = 42; c <= 44; c++) mapTileNum[c][82] = STONE; // West bridge section
+        mapTileNum[45][82] = WATER_A; // Broken gap in the bridge!
+        for (int c = 46; c <= 48; c++) mapTileNum[c][82] = STONE; // East bridge section
+
+        // Rocky boulders in the water
+        mapTileNum[33][74] = STONE;
+        mapTileNum[40][77] = STONE;
+        mapTileNum[33][83] = STONE;
+        mapTileNum[42][87] = STONE;
+        mapTileNum[35][89] = STONE;
+
+        // 2. CENTRAL CRACKED FLAGSTONE PLAZA (Cols 49-68, Rows 72-85)
+        for (int c = 49; c <= 68; c++) {
+            for (int r = 72; r <= 85; r++) {
+                mapTileNum[c][r] = RUIN_FLOOR;
+            }
+        }
+
+        // 3. THREE RUINED BUILDING FOUNDATIONS (Roofless walls with doorways)
+        // Building 1 (West Ruin: Cols 50-54, Rows 76-80)
+        for (int c = 50; c <= 54; c++) {
+            for (int r = 76; r <= 80; r++) {
+                if (c == 50 || c == 54 || r == 76 || r == 80) {
+                    mapTileNum[c][r] = RUIN_WALL;
+                } else {
+                    mapTileNum[c][r] = RUIN_FLOOR;
+                }
+            }
+        }
+        mapTileNum[54][78] = RUIN_FLOOR; // East doorway
+
+        // Building 2 (Central Ruin: Cols 56-61, Rows 77-82)
+        for (int c = 56; c <= 61; c++) {
+            for (int r = 77; r <= 82; r++) {
+                if (c == 56 || c == 61 || r == 77 || r == 82) {
+                    mapTileNum[c][r] = RUIN_WALL;
+                } else {
+                    mapTileNum[c][r] = RUIN_FLOOR;
+                }
+            }
+        }
+        mapTileNum[58][77] = RUIN_FLOOR; // North doorway
+        mapTileNum[59][82] = RUIN_FLOOR; // South doorway
+        mapTileNum[58][79] = TREE;       // Pine tree growing inside central ruin!
+
+        // Building 3 (East Ruin: Cols 63-67, Rows 78-82)
+        for (int c = 63; c <= 67; c++) {
+            for (int r = 78; r <= 82; r++) {
+                if (c == 63 || c == 67 || r == 78 || r == 82) {
+                    mapTileNum[c][r] = RUIN_WALL;
+                } else {
+                    mapTileNum[c][r] = RUIN_FLOOR;
+                }
+            }
+        }
+        mapTileNum[63][80] = RUIN_FLOOR; // West doorway
+
+        // North Temple Colonnade Wall
+        for (int c = 49; c <= 57; c++) {
+            mapTileNum[c][70] = RUIN_WALL;
+            mapTileNum[c][71] = RUIN_WALL;
+        }
+        mapTileNum[53][71] = RUIN_FLOOR; // Temple doorway entrance
+
+        // 4. NORTH-EAST WATER BASIN / POND (Cols 67-74, Rows 67-71)
+        for (int c = 67; c <= 74; c++) {
+            for (int r = 67; r <= 71; r++) {
+                mapTileNum[c][r] = WATER_A;
+            }
+        }
+
+        // 5. SOUTH-EAST DENSE PINE FOREST & SECRET SHRINE
+        for (int c = 69; c <= 76; c++) {
+            for (int r = 84; r <= 94; r++) {
+                mapTileNum[c][r] = TREE;
+            }
+        }
+        // Carve winding secret trail to hidden shrine
+        for (int r = 83; r <= 90; r++) mapTileNum[69][r] = DIRT;
+        for (int c = 69; c <= 73; c++) mapTileNum[c][90] = DIRT;
+        // Secret overgrown clearing with ancient ruin floor
+        for (int c = 73; c <= 76; c++) {
+            for (int r = 89; r <= 92; r++) {
+                mapTileNum[c][r] = RUIN_FLOOR;
+            }
+        }
+
+        // Entrance paths leading into Ancient Ruins from the north
+        for (int r = 64; r <= 72; r++) {
+            mapTileNum[53][r] = PATH;
+        }
+
+
+
         for (int c = 9; c < W-2; c++) for (int r = 28+rowOff; r <= 28+rowOff; r++) mapTileNum[c][r] = GRASS;
         for (int r = 26+rowOff; r < 38+rowOff; r++) mapTileNum[28][r] = PATH;
         for (int c = 9;  c < 45; c++) mapTileNum[c][37+rowOff]  = PATH;
