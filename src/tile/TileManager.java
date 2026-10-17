@@ -503,7 +503,8 @@ public class TileManager {
         for (int c = 9; c < 28; c++) for (int r = 38+rowOff; r < H-1; r++) mapTileNum[c][r] = CAVE_FLOOR;
         for (int r = 38+rowOff; r < H-1; r++) { mapTileNum[9][r] = CAVE_WALL; mapTileNum[27][r] = CAVE_WALL; }
         for (int c = 9; c < 28; c++) { mapTileNum[c][38+rowOff] = CAVE_WALL; mapTileNum[c][H-2] = CAVE_WALL; }
-        for (int c = 17; c <= 19; c++) mapTileNum[c][38+rowOff] = CAVE_FLOOR;
+        // 1-tile wide cave mouth; the columns either side stay CAVE_WALL so the gate's stone pillars are solid
+        mapTileNum[18][38+rowOff] = CAVE_FLOOR;
         for (int c = 30; c < W-1; c++) for (int r = 38+rowOff; r < H-1; r++) mapTileNum[c][r] = RUIN_FLOOR;
         for (int c = 32; c < W-2; c += 7) for (int r = 40+rowOff; r < H-3; r += 7) mapTileNum[c][r] = RUIN_WALL;
         for (int r = 38+rowOff; r < H-1; r++) mapTileNum[W-2][r] = RUIN_WALL;
@@ -581,6 +582,23 @@ public class TileManager {
         for (int c = c1; c <= c2 && c < gp.maxWorldCol; c += 3) for (int r = r1; r <= r2 && r < gp.maxWorldRow; r += 3) if ((c + r) % 5 != 0) mapTileNum[c][r] = TREE;
     }
 
+    // ------------------------------------------------------------------
+    // Interior rooms are carved into the overworld map, but they are only
+    // shown (and solid) while the player is actually inside them. Otherwise
+    // the underlying Ancient Ruins floor shows through, so a Wild West
+    // stable or dance club never appears to sit in the ruins.
+    // ------------------------------------------------------------------
+    public static final int INTERIOR_NONE   = -1;
+    public static final int INTERIOR_CLUB   = 0;
+    public static final int INTERIOR_STABLE = 1;
+
+    /** Which interior (if any) owns the tile at (col,row). */
+    public int interiorAt(int col, int row) {
+        if (col >= 80 && col <= 96 && row >= 88 && row <= 98) return INTERIOR_CLUB;
+        if (col >= 62 && col <= 72 && row >= 88 && row <= 96) return INTERIOR_STABLE;
+        return INTERIOR_NONE;
+    }
+
     public void draw(Graphics2D g2) {
         int camX = gp.camera.x; int camY = gp.camera.y;
         for (int col = 0; col < gp.maxWorldCol; col++) {
@@ -589,6 +607,10 @@ public class TileManager {
                 int screenX = worldX - camX; int screenY = worldY - camY;
                 if (screenX + gp.tileSize < 0 || screenX > gp.screenWidth || screenY + gp.tileSize < 0 || screenY > gp.screenHeight) continue;
                 int tileId = mapTileNum[col][row];
+                // A carved interior is only visible while the player is inside it;
+                // otherwise the underlying Ancient Ruins floor shows through.
+                int interior = interiorAt(col, row);
+                if (interior != INTERIOR_NONE && interior != gp.activeInterior) tileId = RUIN_FLOOR;
                 if (tileId < 0 || tileId >= tiles.length || tiles[tileId] == null) continue;
                 BufferedImage img = tiles[tileId].getCurrentFrame();
                 if (img != null) g2.drawImage(img, screenX, screenY, null);

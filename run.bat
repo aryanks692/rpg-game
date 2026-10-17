@@ -25,6 +25,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/entity/enemy/Ninja.java ^
   src/entity/enemy/SunGuardian.java ^
   src/object/SuperObject.java ^
+  src/object/OBJ_RunePuzzle.java ^
   src/object/OBJ_Sword.java ^
   src/object/OBJ_Shield.java ^
   src/object/OBJ_Potion.java ^

@@ -344,5 +344,10 @@ public class AssetSetter {
         gp.objects[35] = new OBJ_HorseStall(gp);
         gp.objects[35].worldX = ts * 77;
         gp.objects[35].worldY = ts * 19;
+
+        // Ancient Rune Altar — inside the Ancient Ruins (just south of the northern entrance)
+        gp.objects[36] = new OBJ_RunePuzzle(gp);
+        gp.objects[36].worldX = ts * 36;
+        gp.objects[36].worldY = ts * 71;
     }
 }

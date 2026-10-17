@@ -11,6 +11,7 @@ public class KeyHandler implements KeyListener {
     public boolean savePressed, newGamePressed;
     public boolean yesPressed, noPressed;
     public boolean mountPressed;
+    public boolean deletePressed;
 
     // One-shot flags (set once, consumed by game logic)
     public boolean attackJustPressed;
@@ -25,6 +26,7 @@ public class KeyHandler implements KeyListener {
     public boolean yesJustPressed;
     public boolean noJustPressed;
     public boolean mountJustPressed;
+    public boolean deleteJustPressed;
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -47,11 +49,12 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_Q:      if (!questPressed) questJustPressed = true; questPressed = true; break;
             case KeyEvent.VK_ESCAPE: if (!pausePressed) pauseJustPressed = true; pausePressed = true; break;
             case KeyEvent.VK_ENTER:  if (!enterPressed) enterJustPressed = true; enterPressed = true; break;
-            case KeyEvent.VK_F5:     if (!savePressed) saveJustPressed = true; savePressed = true; break;
+            case KeyEvent.VK_TAB:    if (!savePressed) saveJustPressed = true; savePressed = true; break;
             case KeyEvent.VK_R:      if (!newGamePressed) newGameJustPressed = true; newGamePressed = true; break;
             case KeyEvent.VK_Y:      if (!yesPressed) yesJustPressed = true; yesPressed = true; break;
             case KeyEvent.VK_N:      if (!noPressed) noJustPressed = true; noPressed = true; break;
             case KeyEvent.VK_C:      if (!mountPressed) mountJustPressed = true; mountPressed = true; break;
+            case KeyEvent.VK_DELETE: if (!deletePressed) deleteJustPressed = true; deletePressed = true; break;
         }
     }
 
@@ -73,11 +76,12 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_Q:      questPressed = false; break;
             case KeyEvent.VK_ESCAPE: pausePressed = false; break;
             case KeyEvent.VK_ENTER:  enterPressed = false; break;
-            case KeyEvent.VK_F5:     savePressed = false; break;
+            case KeyEvent.VK_TAB:    savePressed = false; break;
             case KeyEvent.VK_R:      newGamePressed = false; break;
             case KeyEvent.VK_Y:      yesPressed = false; break;
             case KeyEvent.VK_N:      noPressed = false; break;
             case KeyEvent.VK_C:      mountPressed = false; break;
+            case KeyEvent.VK_DELETE: deletePressed = false; break;
         }
     }
 
@@ -93,5 +97,6 @@ public class KeyHandler implements KeyListener {
         yesJustPressed = false;
         noJustPressed = false;
         mountJustPressed = false;
+        deleteJustPressed = false;
     }
 }

@@ -12,14 +12,36 @@ public class SaveMenu {
 
     private final GamePanel gp;
     private int saveSlotCommandNum = 1;
+    private boolean confirmingDelete = false;
+    private int deleteSlot = -1;
 
     public SaveMenu(GamePanel gp) {
         this.gp = gp;
     }
 
+    private String slotName(int slot) {
+        return (slot == 0) ? "Auto-Save" : ("File " + slot);
+    }
+
     public void update() {
         boolean isSaveMode = (gp.gameState == GameState.SAVE_MENU);
         int minSlot = isSaveMode ? 1 : 0;
+
+        // --- Delete confirmation dialog (Yes / No) ---
+        if (confirmingDelete) {
+            if (gp.keyHandler.yesJustPressed) {
+                gp.saveManager.deleteSave(deleteSlot);
+                gp.ui.showNotification("Deleted " + slotName(deleteSlot) + ".");
+                confirmingDelete = false;
+                deleteSlot = -1;
+                gp.keyHandler.clearJustPressed();
+            } else if (gp.keyHandler.noJustPressed || gp.keyHandler.pauseJustPressed) {
+                confirmingDelete = false;
+                deleteSlot = -1;
+                gp.keyHandler.clearJustPressed();
+            }
+            return; // freeze the menu while the dialog is open
+        }
 
         if (gp.keyHandler.upPressed) {
             saveSlotCommandNum--;
@@ -31,6 +53,19 @@ public class SaveMenu {
             if (saveSlotCommandNum > 4) saveSlotCommandNum = minSlot;
             gp.keyHandler.downPressed = false;
         }
+
+        // Delete the highlighted save file (asks for confirmation first)
+        if (gp.keyHandler.deleteJustPressed) {
+            if (gp.saveManager.hasSave(saveSlotCommandNum)) {
+                confirmingDelete = true;
+                deleteSlot = saveSlotCommandNum;
+            } else {
+                gp.ui.showNotification("Slot empty!");
+            }
+            gp.keyHandler.clearJustPressed();
+            return;
+        }
+
         if (gp.keyHandler.enterJustPressed) {
             if (isSaveMode) {
                 gp.currentSaveSlot = saveSlotCommandNum;
@@ -81,8 +116,7 @@ public class SaveMenu {
 
             g2.setFont(UIFonts.hud(18f));
             g2.setColor(Color.WHITE);
-            String slotName = (i == 0) ? "Auto-Save" : "File " + i;
-            g2.drawString(slotName, slotX + 20, slotY + 45);
+            g2.drawString(slotName(i), slotX + 20, slotY + 45);
 
             core.SaveManager.SaveInfo info = gp.saveManager.getSaveInfo(i);
             if (info.exists) {
@@ -106,6 +140,42 @@ public class SaveMenu {
 
         g2.setFont(UIFonts.small(12f));
         g2.setColor(Color.LIGHT_GRAY);
-        g2.drawString("Press ESC to cancel", 20, gp.screenHeight - 20);
+        g2.drawString("DEL: Delete selected file      ESC: Cancel", 20, gp.screenHeight - 20);
+
+        if (confirmingDelete) {
+            drawDeleteConfirm(g2);
+        }
+    }
+
+    private void drawDeleteConfirm(Graphics2D g2) {
+        UIPanel.drawOverlay(g2, gp.screenWidth, gp.screenHeight, new Color(0, 0, 0, 190));
+
+        int pw = 490, ph = 190;
+        int px = gp.screenWidth / 2 - pw / 2;
+        int py = gp.screenHeight / 2 - ph / 2;
+        UIPanel.drawPanel(g2, px, py, pw, ph);
+
+        FontMetrics fm = g2.getFontMetrics();
+
+        g2.setFont(UIFonts.title(24f));
+        g2.setColor(new Color(255, 120, 120));
+        String t1 = "Delete " + slotName(deleteSlot) + "?";
+        g2.drawString(t1, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(t1) / 2, py + 58);
+
+        g2.setFont(UIFonts.small(15f));
+        g2.setColor(new Color(225, 225, 225));
+        String t2 = "Do you confirm deleting this save file?";
+        g2.drawString(t2, gp.screenWidth / 2 - g2.getFontMetrics().stringWidth(t2) / 2, py + 94);
+
+        g2.setFont(UIFonts.hud(17f));
+        fm = g2.getFontMetrics();
+        int cy = py + 145;
+        int spread = 70;
+        String yes = "[Y] Yes";
+        String no = "[N] No";
+        g2.setColor(new Color(150, 240, 160));
+        g2.drawString(yes, gp.screenWidth / 2 - spread - fm.stringWidth(yes) / 2, cy);
+        g2.setColor(new Color(255, 160, 160));
+        g2.drawString(no, gp.screenWidth / 2 + spread - fm.stringWidth(no) / 2, cy);
     }
 }

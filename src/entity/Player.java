@@ -612,6 +612,11 @@ public class Player extends Entity {
             );
             for (NPC npc : gp.npcs) {
                 if (npc == null) continue;
+                int ncol = npc.worldX / gp.tileSize;
+                int nrow = npc.worldY / gp.tileSize;
+                int interior = gp.tileManager.interiorAt(ncol, nrow);
+                if (interior != tile.TileManager.INTERIOR_NONE && interior != gp.activeInterior) continue;
+
                 if (interactZone.intersects(npc.getWorldCollisionBox())) {
                     npc.startDialogue();
                     gp.gameState = GameState.DIALOGUE;
@@ -627,6 +632,11 @@ public class Player extends Entity {
             );
             for (object.SuperObject obj : gp.objects) {
                 if (obj == null) continue;
+                int ocol = obj.worldX / gp.tileSize;
+                int orow = obj.worldY / gp.tileSize;
+                int interior = gp.tileManager.interiorAt(ocol, orow);
+                if (interior != tile.TileManager.INTERIOR_NONE && interior != gp.activeInterior) continue;
+
                 if (obj instanceof object.OBJ_Chest) {
                     object.OBJ_Chest chest = (object.OBJ_Chest) obj;
                     if (!chest.opened && interactZone.intersects(obj.getWorldCollisionBox())) {
@@ -675,9 +685,9 @@ public class Player extends Entity {
         String zone;
 
         // --- ZONE COORDINATES ---
-        if (col >= 62 && col <= 72 && row >= 88 && row <= 96) {
+        if (gp.activeInterior == tile.TileManager.INTERIOR_STABLE && col >= 62 && col <= 72 && row >= 88 && row <= 96) {
             zone = "Dusty Gulch"; // Inside the Horse Stable interior
-        } else if (col >= 78 && col <= 98 && row >= 86 && row <= 99) {
+        } else if (gp.activeInterior == tile.TileManager.INTERIOR_CLUB && col >= 80 && col <= 96 && row >= 88 && row <= 98) {
             zone = "Wild West Dance Club";
         } else if (row < 30) {
             if (col >= 58) zone = "Dusty Gulch";

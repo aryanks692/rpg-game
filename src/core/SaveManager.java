@@ -105,7 +105,8 @@ public class SaveManager {
 
             prop.store(output, "ZeldaRPG Save File");
             System.out.println("Game saved to " + file);
-            gp.ui.showNotification("Progress Saved \u2713");
+            String slotName = (slot == 0) ? "Auto-Save" : ("File " + slot);
+            gp.ui.showNotification("Saved to " + slotName + " \u2713");
         } catch (IOException io) {
             io.printStackTrace();
         }

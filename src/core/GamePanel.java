@@ -5,6 +5,7 @@ import combat.*;
 import entity.*;
 import entity.enemy.Enemy;
 import object.SuperObject;
+import object.OBJ_RunePuzzle;
 import quest.QuestManager;
 import tile.TileManager;
 import ui.UI;
@@ -53,6 +54,12 @@ public class GamePanel extends JPanel implements Runnable {
     public SuperObject[] objects;
     public Entity currentDialogueEntity;
 
+    // Active rune puzzle overlay (null when closed)
+    public OBJ_RunePuzzle activePuzzle;
+
+    // Which carved interior the player is currently inside (see TileManager)
+    public int activeInterior = TileManager.INTERIOR_NONE;
+
     // Combat effects and projectiles (LinkedList for O(1) removal on update)
     public List<DamageNumber> damageNumbers = new LinkedList<>();
     public List<Projectile> projectiles = new LinkedList<>();
@@ -76,6 +83,8 @@ public class GamePanel extends JPanel implements Runnable {
         setDoubleBuffered(true);
         addKeyListener(keyHandler);
         setFocusable(true);
+        // Tab is normally used for focus traversal and would never reach the key listener
+        setFocusTraversalKeysEnabled(false);
     }
 
     public void setupGame() {
@@ -106,25 +115,35 @@ public class GamePanel extends JPanel implements Runnable {
       public void enterDanceClub() {
         player.worldX = tileSize * 88; // Center of dance floor
         player.worldY = tileSize * 93; // Safe distance above exit door
+        activeInterior = TileManager.INTERIOR_CLUB;
         ui.showNotification("Entered the Wild West Dance Club!");
     }
 
     public void exitDanceClub() {
         player.worldX = tileSize * 85; // Outside club door in Dusty Gulch
         player.worldY = tileSize * 11; // Street level
+        activeInterior = TileManager.INTERIOR_NONE;
         ui.showNotification("Exited to Dusty Gulch.");
     }
 
     public void enterHorseStall() {
         player.worldX = tileSize * 67; // Just inside the stable door
         player.worldY = tileSize * 93;
+        activeInterior = TileManager.INTERIOR_STABLE;
         ui.showNotification("Entered the Horse Stall. Talk to the Stable Owner!");
     }
 
     public void exitHorseStall() {
         player.worldX = tileSize * 78; // Back onto the Dusty Gulch street
         player.worldY = tileSize * 23;
+        activeInterior = TileManager.INTERIOR_NONE;
         ui.showNotification("Left the Horse Stall.");
+    }
+
+    public void openRunePuzzle(OBJ_RunePuzzle puzzle) {
+        activePuzzle = puzzle;
+        gameState = GameState.RUNE_PUZZLE;
+        keyHandler.clearJustPressed();   // don't let the opening keypress leak in
     }
 
     public void startGameThread() {
@@ -199,6 +218,11 @@ public class GamePanel extends JPanel implements Runnable {
             case QUEST_LOG:
             case SAVE_MENU:
             case LOAD_MENU:
+                // Open the save-file selection screen with the save hotkey, even while paused
+                if (gameState == GameState.PAUSE && keyHandler.saveJustPressed) {
+                    gameState = GameState.SAVE_MENU;
+                    keyHandler.clearJustPressed();
+                }
                 // Player or UI handles key input for these states internally
                 player.update();
                 break;
@@ -264,6 +288,9 @@ public class GamePanel extends JPanel implements Runnable {
                         keyHandler.clearJustPressed();
                     }
                 }
+                break;
+            case RUNE_PUZZLE:
+                if (activePuzzle != null) activePuzzle.handleInput(keyHandler);
                 break;
             case GAME_OVER:
                 if (keyHandler.enterJustPressed) {
@@ -444,16 +471,28 @@ public class GamePanel extends JPanel implements Runnable {
             // Draw objects
             if (objects != null) {
                 for (SuperObject obj : objects) {
-                    if (obj != null)
-                        obj.draw(g2);
+                    if (obj != null) {
+                        int ocol = obj.worldX / tileSize;
+                        int orow = obj.worldY / tileSize;
+                        int interior = tileManager.interiorAt(ocol, orow);
+                        if (interior == tile.TileManager.INTERIOR_NONE || interior == activeInterior) {
+                            obj.draw(g2);
+                        }
+                    }
                 }
             }
 
             // Draw NPCs
             if (npcs != null) {
                 for (NPC npc : npcs) {
-                    if (npc != null)
-                        npc.draw(g2);
+                    if (npc != null) {
+                        int ncol = npc.worldX / tileSize;
+                        int nrow = npc.worldY / tileSize;
+                        int interior = tileManager.interiorAt(ncol, nrow);
+                        if (interior == tile.TileManager.INTERIOR_NONE || interior == activeInterior) {
+                            npc.draw(g2);
+                        }
+                    }
                 }
             }
 
@@ -482,6 +521,11 @@ public class GamePanel extends JPanel implements Runnable {
             // Draw UI on top
             if (ui != null)
                 ui.draw(g2);
+
+            // Rune puzzle overlay on top of everything
+            if (gameState == GameState.RUNE_PUZZLE && activePuzzle != null) {
+                activePuzzle.drawOverlay(g2);
+            }
         }
 
         g2.dispose();

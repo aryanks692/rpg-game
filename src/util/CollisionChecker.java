@@ -26,40 +26,34 @@ public class CollisionChecker {
         int rowTop    = entityTop / ts;
         int rowBottom = entityBottom / ts;
 
-        int tileNum1, tileNum2;
         entity.collisionOn = false;
 
         switch (entity.direction) {
             case "up":
                 rowTop = (entityTop - entity.speed) / ts;
-                tileNum1 = getTile(colLeft, rowTop);
-                tileNum2 = getTile(colRight, rowTop);
-                if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
+                if (isSolidAt(colLeft, rowTop) || isSolidAt(colRight, rowTop)) entity.collisionOn = true;
                 break;
             case "down":
                 rowBottom = (entityBottom + entity.speed) / ts;
-                tileNum1 = getTile(colLeft, rowBottom);
-                tileNum2 = getTile(colRight, rowBottom);
-                if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
+                if (isSolidAt(colLeft, rowBottom) || isSolidAt(colRight, rowBottom)) entity.collisionOn = true;
                 break;
             case "left":
                 colLeft = (entityLeft - entity.speed) / ts;
-                tileNum1 = getTile(colLeft, rowTop);
-                tileNum2 = getTile(colLeft, rowBottom);
-                if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
+                if (isSolidAt(colLeft, rowTop) || isSolidAt(colLeft, rowBottom)) entity.collisionOn = true;
                 break;
             case "right":
                 colRight = (entityRight + entity.speed) / ts;
-                tileNum1 = getTile(colRight, rowTop);
-                tileNum2 = getTile(colRight, rowBottom);
-                if (isSolid(tileNum1) || isSolid(tileNum2)) entity.collisionOn = true;
+                if (isSolidAt(colRight, rowTop) || isSolidAt(colRight, rowBottom)) entity.collisionOn = true;
                 break;
         }
     }
 
-    private int getTile(int col, int row) {
-        if (col < 0 || col >= gp.maxWorldCol || row < 0 || row >= gp.maxWorldRow) return -1;
-        return gp.tileManager.mapTileNum[col][row];
+    /** Solid test for a tile coordinate, treating hidden interiors as empty floor. */
+    private boolean isSolidAt(int col, int row) {
+        if (col < 0 || col >= gp.maxWorldCol || row < 0 || row >= gp.maxWorldRow) return true;
+        int interior = gp.tileManager.interiorAt(col, row);
+        if (interior != TileManager.INTERIOR_NONE && interior != gp.activeInterior) return false;
+        return isSolid(gp.tileManager.mapTileNum[col][row]);
     }
 
     private boolean isSolid(int tileId) {
@@ -76,6 +70,13 @@ public class CollisionChecker {
         for (int i = 0; i < targets.length; i++) {
             Entity t = targets[i];
             if (t == null || !t.alive) continue;
+
+            // Skip hidden interior entities
+            int ncol = t.worldX / gp.tileSize;
+            int nrow = t.worldY / gp.tileSize;
+            int interior = gp.tileManager.interiorAt(ncol, nrow);
+            if (interior != TileManager.INTERIOR_NONE && interior != gp.activeInterior) continue;
+
             Rectangle bBox = t.getWorldCollisionBox();
             if (aBox.intersects(bBox)) {
                 entity.collisionOn = true;
@@ -111,8 +112,17 @@ public class CollisionChecker {
             object.SuperObject obj = gp.objects[i];
             if (obj == null || obj.pickedUp) continue;
 
-            // Only block solid objects (buildings, barrels, chests, etc. — ignore collectible floor items)
-            if (!(obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword || obj instanceof object.OBJ_Shield)) {
+            // Skip hidden interior objects
+            int ocol = obj.worldX / gp.tileSize;
+            int orow = obj.worldY / gp.tileSize;
+            int interior = gp.tileManager.interiorAt(ocol, orow);
+            if (interior != TileManager.INTERIOR_NONE && interior != gp.activeInterior) continue;
+
+            // Only block solid objects (buildings, barrels, chests, etc.).
+            // Collectible floor items and the decorative Crystal Gate archway never block movement,
+            // so the player can walk in and out of the cave.
+            if (!(obj instanceof object.OBJ_Potion || obj instanceof object.OBJ_Sword ||
+                  obj instanceof object.OBJ_Shield || obj instanceof object.OBJ_CrystalGate)) {
                 if (nextBox.intersects(obj.getWorldCollisionBox())) {
                     entity.collisionOn = true;
                     index = i;

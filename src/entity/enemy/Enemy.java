@@ -1,5 +1,4 @@
 package entity.enemy;
-
 import core.GamePanel;
 import entity.Entity;
 import entity.Player;

@@ -37,7 +37,7 @@ public class PauseMenu {
         drawMenuItem(g2, ix, iy,       "ESC",   "Resume",            UIConstants.COL_TEXT_MAIN);
         drawMenuItem(g2, ix, iy + gap, "I",     "Inventory",         UIConstants.COL_SILVER);
         drawMenuItem(g2, ix, iy + gap*2,"Q",    "Quest Log",         UIConstants.COL_SILVER);
-        drawMenuItem(g2, ix, iy + gap*3,"F5",   "Save Game",         UIConstants.COL_TEXT_GOOD);
+        drawMenuItem(g2, ix, iy + gap*3,"TAB",   "Save Game",         UIConstants.COL_TEXT_GOOD);
         drawMenuItem(g2, ix, iy + gap*4,"ENTER","Use Potion (" +
                 gp.player.potionCount + ")", new Color(160, 220, 180));
 

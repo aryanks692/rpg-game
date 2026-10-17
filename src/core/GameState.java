@@ -7,6 +7,7 @@ public enum GameState {
     DIALOGUE,
     INVENTORY,
     QUEST_LOG,
+    RUNE_PUZZLE,
     GAME_OVER,
     WIN,
     DEATH,
