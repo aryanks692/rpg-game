@@ -50,6 +50,12 @@ public class UI {
         notificationManager.show(msg);
     }
 
+    public void resetCutscene() {
+        if (cutsceneScreen != null) {
+            cutsceneScreen.reset();
+        }
+    }
+
     public void update() {
         notificationManager.update();
         hud.update();

@@ -453,6 +453,7 @@ public class GamePanel extends JPanel implements Runnable {
         playTimeTicks = 0;
         activeInterior = TileManager.INTERIOR_NONE;
         currentMap = 0;
+        if (ui != null) ui.resetCutscene();
         gameState = GameState.CUTSCENE;
         keyHandler.clearJustPressed();
     }
