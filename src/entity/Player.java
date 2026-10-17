@@ -24,6 +24,18 @@ public class Player extends Entity {
     public boolean hasWeapon = false;
     public boolean hasShield = false;
 
+    // Horse (owned once, ride with C)
+    public boolean hasHorse = false;
+    public boolean onHorse = false;
+    public static final int SPEED_WALK = 3;
+    public static final int SPEED_RIDE = 6;
+
+    // Horse riding sprites (built when mounted)
+    private BufferedImage[] rideDown  = new BufferedImage[4];
+    private BufferedImage[] rideUp    = new BufferedImage[4];
+    private BufferedImage[] rideLeft  = new BufferedImage[4];
+    private BufferedImage[] rideRight = new BufferedImage[4];
+
     // Credit Score (Social Standing)
     public int creditScore = 0;
     public int totalSpent = 0;
@@ -63,7 +75,7 @@ public class Player extends Entity {
         this.key = key;
         maxLife = 100;
         life = maxLife;
-        speed = 3;
+        speed = SPEED_WALK;
         width = gp.tileSize;
         height = gp.tileSize;
         collisionBox = new Rectangle(8, 16, 32, 28);
@@ -74,6 +86,26 @@ public class Player extends Entity {
         worldY = gp.tileSize * 40;
 
         buildSprites();
+    }
+
+    /** Grant the player ownership of a horse (bought once at the Horse Stall). */
+    public void buyHorse() {
+        hasHorse = true;
+    }
+
+    /** Toggle riding the horse with [C]. Requires owning one. */
+    public void toggleMount() {
+        if (!hasHorse) {
+            gp.ui.showNotification("You need to buy a Horse first! (Horse Stall)");
+            return;
+        }
+        onHorse = !onHorse;
+        speed = onHorse ? SPEED_RIDE : SPEED_WALK;
+        if (onHorse) {
+            gp.ui.showNotification("Mounted your Horse! Speed " + SPEED_RIDE + " - press [C] to dismount.");
+        } else {
+            gp.ui.showNotification("Dismounted. Back to walking on foot.");
+        }
     }
 
     private void buildSprites() {
@@ -90,7 +122,187 @@ public class Player extends Entity {
             attackLeft[i]  = createAttackSprite("left",  i);
             attackRight[i] = createAttackSprite("right", i);
         }
+        for (int i = 0; i < 4; i++) {
+            rideDown[i]  = createRideSprite("down",  i);
+            rideUp[i]    = createRideSprite("up",    i);
+            rideLeft[i]  = createRideSprite("left",  i);
+            rideRight[i] = createRideSprite("right", i);
+        }
         image = walkDown[0];
+    }
+
+    private BufferedImage getRideFrame() {
+        BufferedImage[] f;
+        if ("up".equals(direction))         f = rideUp;
+        else if ("left".equals(direction))  f = rideLeft;
+        else if ("right".equals(direction)) f = rideRight;
+        else                                f = rideDown;
+        return f[spriteNum % f.length];
+    }
+
+    private BufferedImage getRideIdle() {
+        if ("up".equals(direction))         return rideUp[0];
+        else if ("left".equals(direction))  return rideLeft[0];
+        else if ("right".equals(direction)) return rideRight[0];
+        return rideDown[0];
+    }
+
+    /**
+     * Procedural top-down horse + rider sprite. The horse's legs, tail and the
+     * rider bob/swing with the animation frame, giving a visible riding gait.
+     */
+    private BufferedImage createRideSprite(String dir, int frame) {
+        int ts = gp.tileSize;
+        BufferedImage img = new BufferedImage(ts, ts, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        Color horseBody = new Color(139, 90, 50);
+        Color horseDark = new Color(96, 60, 33);
+        Color horseMane = new Color(58, 36, 20);
+        Color hoof      = new Color(38, 24, 13);
+        Color muzzle    = new Color(70, 45, 26);
+        Color saddle    = new Color(122, 44, 42);
+        Color skin      = new Color(245, 200, 160);
+        Color hair      = new Color(80, 50, 30);
+        Color tunic     = new Color(50, 120, 70);
+
+        int cx = ts / 2;
+        int bob  = (frame % 2 == 0) ? 0 : 1;   // gentle body bob
+        int legA = (frame % 2 == 0) ? 3 : -3;  // leg swing
+
+        boolean side  = dir.equals("left") || dir.equals("right");
+        boolean right = dir.equals("right");
+
+        // Ground shadow
+        g.setColor(new Color(0, 0, 0, 70));
+        g.fillOval(cx - 16, ts - 9, 32, 7);
+
+        // ---- LEGS (drawn first, behind the body) ----
+        int legTop = ts - 20;
+        int[] legXs;
+        if (side) legXs = new int[]{cx - 12, cx - 4, cx + 4, cx + 12};
+        else      legXs = new int[]{cx - 13, cx - 6, cx + 2, cx + 10};
+        for (int i = 0; i < legXs.length; i++) {
+            int off = (i % 2 == 0) ? legA : -legA;
+            g.setColor(horseDark);
+            g.fillRoundRect(legXs[i], legTop + off, 6, 12, 3, 3);
+            g.setColor(hoof);
+            g.fillRoundRect(legXs[i], legTop + off + 8, 6, 4, 2, 2);
+        }
+
+        // ---- TAIL (behind, opposite the head) ----
+        g.setColor(horseMane);
+        if (side) {
+            int tx = right ? cx - 21 : cx + 14;
+            int toff = (frame % 2 == 0) ? 0 : 2;
+            g.fillRoundRect(tx, 20 + bob + toff, 7, 15, 5, 5);
+        } else if (dir.equals("down")) {
+            g.fillRoundRect(cx - 4, 14 + bob, 8, 12, 5, 5);
+        } else { // up
+            g.fillRoundRect(cx - 4, ts - 24 + bob, 8, 12, 5, 5);
+        }
+
+        // ---- NECK + HEAD ----
+        if (side) {
+            int hx = right ? cx + 9 : cx - 21;
+            g.setColor(horseDark);
+            g.fillRoundRect(hx, 15 + bob, 13, 15, 5, 5);
+            g.setColor(horseBody);
+            g.fillRoundRect(hx + 1, 16 + bob, 11, 13, 5, 5);
+            // muzzle
+            g.setColor(muzzle);
+            g.fillRoundRect(right ? hx + 6 : hx + 2, 25 + bob, 8, 6, 3, 3);
+            // mane
+            g.setColor(horseMane);
+            g.fillRect(right ? hx + 2 : hx + 9, 15 + bob, 3, 13);
+            // ear
+            g.setColor(horseBody);
+            g.fillPolygon(new int[]{hx + 6, hx + 9, hx + 12},
+                          new int[]{16 + bob, 9 + bob, 16 + bob}, 3);
+        } else {
+            boolean down = dir.equals("down");
+            int hy = down ? 33 + bob : 1 + bob;
+            g.setColor(horseDark);
+            g.fillRoundRect(cx - 6, hy, 12, 14, 5, 5);
+            g.setColor(horseBody);
+            g.fillRoundRect(cx - 5, hy + 1, 10, 12, 5, 5);
+            // muzzle
+            g.setColor(muzzle);
+            g.fillRoundRect(cx - 4, down ? hy + 9 : hy + 1, 8, 4, 2, 2);
+            // ears
+            g.setColor(horseBody);
+            g.fillPolygon(new int[]{cx - 6, cx - 3, cx}, new int[]{down ? hy : hy + 12, down ? hy - 5 : hy + 17, down ? hy : hy + 12}, 3);
+            g.fillPolygon(new int[]{cx, cx + 3, cx + 6}, new int[]{down ? hy : hy + 12, down ? hy - 5 : hy + 17, down ? hy : hy + 12}, 3);
+            // mane
+            g.setColor(horseMane);
+            g.fillRect(cx - 4, down ? hy + 2 : hy + 11, 8, 3);
+            // eyes (only when facing the camera)
+            if (down) {
+                g.setColor(Color.WHITE);
+                g.fillOval(cx - 4, hy + 3, 3, 3);
+                g.fillOval(cx + 1, hy + 3, 3, 3);
+                g.setColor(Color.BLACK);
+                g.fillOval(cx - 3, hy + 4, 2, 2);
+                g.fillOval(cx + 2, hy + 4, 2, 2);
+            }
+        }
+
+        // ---- BODY ----
+        g.setColor(horseDark);
+        g.fillRoundRect(cx - 15, 20 + bob, 30, 19, 10, 10);
+        g.setColor(horseBody);
+        g.fillRoundRect(cx - 14, 21 + bob, 28, 16, 10, 10);
+        // shading along the flank
+        g.setColor(new Color(0, 0, 0, 55));
+        g.fillRoundRect(cx - 14, 32 + bob, 28, 5, 8, 8);
+
+        // ---- SADDLE ----
+        g.setColor(saddle);
+        g.fillRoundRect(cx - 8, 21 + bob, 16, 7, 4, 4);
+        g.setColor(new Color(255, 210, 120));
+        g.fillRect(cx - 8, 24 + bob, 16, 1);
+
+        // ---- RIDER ----
+        int rBob = bob;
+        // torso
+        g.setColor(tunic);
+        g.fillRoundRect(cx - 7, 9 + rBob, 15, 13, 5, 5);
+        g.setColor(new Color(60, 40, 20));
+        g.fillRect(cx - 7, 18 + rBob, 15, 3);
+        // arms (hold reins toward the head side)
+        g.setColor(tunic);
+        int armOff = (frame % 2 == 0) ? 1 : -1;
+        if (side) {
+            int ax = right ? cx + 4 : cx - 10;
+            g.fillRoundRect(ax, 12 + rBob + armOff, 6, 9, 3, 3);
+        } else {
+            g.fillRoundRect(cx - 11, 12 + rBob + armOff, 5, 9, 3, 3);
+            g.fillRoundRect(cx + 7, 12 + rBob - armOff, 5, 9, 3, 3);
+        }
+        // head
+        g.setColor(skin);
+        g.fillOval(cx - 7, 1 + rBob, 14, 13);
+        g.setColor(hair);
+        if (dir.equals("up")) {
+            g.fillOval(cx - 7, 0 + rBob, 14, 12);           // back of the head
+        } else {
+            g.fillArc(cx - 7, 0 + rBob, 14, 10, 0, 180);    // hair on top
+            if (dir.equals("down")) {
+                g.setColor(new Color(40, 40, 50));
+                g.fillOval(cx - 5, 5 + rBob, 3, 4);
+                g.fillOval(cx + 2, 5 + rBob, 3, 4);
+            } else if (dir.equals("left")) {
+                g.setColor(new Color(40, 40, 50));
+                g.fillOval(cx - 6, 5 + rBob, 3, 4);
+            } else if (dir.equals("right")) {
+                g.setColor(new Color(40, 40, 50));
+                g.fillOval(cx + 3, 5 + rBob, 3, 4);
+            }
+        }
+
+        g.dispose();
+        return img;
     }
 
     private BufferedImage createPlayerSprite(String dir, int frame) {
@@ -253,6 +465,11 @@ public class Player extends Entity {
             startAttack();
         }
 
+        // Mount / dismount horse with [C]
+        if (key.mountJustPressed) {
+            toggleMount();
+        }
+
         // Fire logic
                 // Fire logic
         if (fireCooldown > 0) fireCooldown--;
@@ -376,6 +593,16 @@ public class Player extends Entity {
             gp.exitDanceClub();
             return;
         }
+        // Check Horse Stable exit door with [E]
+        if (col >= 66 && col <= 68 && row == 95) {
+            gp.exitHorseStall();
+            return;
+        }
+        // Check Horse Stall entrance door with [E] (tiles just below the stable)
+        if (col >= 77 && col <= 79 && row >= 22 && row <= 23) {
+            gp.enterHorseStall();
+            return;
+        }
 
         // Check NPC proximity
         if (gp.npcs != null) {
@@ -448,7 +675,9 @@ public class Player extends Entity {
         String zone;
 
         // --- ZONE COORDINATES ---
-        if (col >= 78 && col <= 98 && row >= 86 && row <= 99) {
+        if (col >= 62 && col <= 72 && row >= 88 && row <= 96) {
+            zone = "Dusty Gulch"; // Inside the Horse Stable interior
+        } else if (col >= 78 && col <= 98 && row >= 86 && row <= 99) {
             zone = "Wild West Dance Club";
         } else if (row < 30) {
             if (col >= 58) zone = "Dusty Gulch";
@@ -531,6 +760,59 @@ public class Player extends Entity {
         return 25;
     }
 
+    // ── Enemy Mastery System (LC 347 Top-K Frequent Pattern) ──
+    public static final int MASTERY_K = 3;
+
+    public final java.util.Map<String, Integer> enemyKillCount = new java.util.HashMap<>();
+
+    public final java.util.PriorityQueue<String> topKillHeap = new java.util.PriorityQueue<>(
+        MASTERY_K + 1,
+        (a, b) -> enemyKillCount.getOrDefault(a, 0) - enemyKillCount.getOrDefault(b, 0)
+    );
+
+    public final java.util.Set<String> topMasteredEnemies = new java.util.HashSet<>();
+    public final java.util.Map<String, Integer> masteryRank = new java.util.HashMap<>();
+
+    public void onEnemyKilled(String enemyType) {
+        if (enemyType == null) return;
+
+        enemyKillCount.put(enemyType, enemyKillCount.getOrDefault(enemyType, 0) + 1);
+
+        topKillHeap.remove(enemyType);
+        topKillHeap.offer(enemyType);
+
+        while (topKillHeap.size() > MASTERY_K) {
+            topKillHeap.poll();
+        }
+
+        topMasteredEnemies.clear();
+        masteryRank.clear();
+        java.util.List<String> sorted = new java.util.ArrayList<>(topKillHeap);
+        sorted.sort((a, b) -> enemyKillCount.getOrDefault(b, 0) - enemyKillCount.getOrDefault(a, 0));
+        for (int i = 0; i < sorted.size(); i++) {
+            String type = sorted.get(i);
+            topMasteredEnemies.add(type);
+            masteryRank.put(type, i + 1);
+        }
+    }
+
+    public double getMasteryDamageMultiplier(String enemyType) {
+        if (!topMasteredEnemies.contains(enemyType)) return 1.0;
+        int rank = masteryRank.getOrDefault(enemyType, 999);
+        if (rank == 1) return 1.30;
+        if (rank == 2) return 1.20;
+        if (rank == 3) return 1.10;
+        return 1.0;
+    }
+
+    public String getMasteryTitle() {
+        if (masteryRank.isEmpty()) return null;
+        for (java.util.Map.Entry<String, Integer> e : masteryRank.entrySet()) {
+            if (e.getValue() == 1) return e.getKey() + "bane";
+        }
+        return null;
+    }
+
     @Override
     public void draw(Graphics2D g2) {
         int screenX = worldX - gp.camera.x;
@@ -553,7 +835,9 @@ public class Player extends Entity {
 
         // Draw sprite
         BufferedImage frame;
-        if (attacking) {
+        if (onHorse) {
+            frame = moving ? getRideFrame() : getRideIdle();
+        } else if (attacking) {
             int afr = (attackTimer < ATTACK_DURATION / 2) ? 0 : 1;
             BufferedImage[] af;
             switch (direction) {
@@ -595,6 +879,15 @@ public class Player extends Entity {
             g2.setFont(new Font("Arial", Font.BOLD, 11));
             g2.setColor(Color.YELLOW);
             g2.drawString("[E] Exit Club", screenX - 12, screenY - 9);
+        }
+
+        // Draw [E] Exit prompt when standing at the Horse Stable door inside
+        if (c >= 66 && c <= 68 && r == 95) {
+            g2.setColor(new Color(0, 0, 0, 180));
+            g2.fillRoundRect(screenX - 22, screenY - 22, 92, 18, 6, 6);
+            g2.setFont(new Font("Arial", Font.BOLD, 11));
+            g2.setColor(Color.YELLOW);
+            g2.drawString("[E] Leave Stable", screenX - 16, screenY - 9);
         }
     }
 }

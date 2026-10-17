@@ -115,6 +115,18 @@ public class GamePanel extends JPanel implements Runnable {
         ui.showNotification("Exited to Dusty Gulch.");
     }
 
+    public void enterHorseStall() {
+        player.worldX = tileSize * 67; // Just inside the stable door
+        player.worldY = tileSize * 93;
+        ui.showNotification("Entered the Horse Stall. Talk to the Stable Owner!");
+    }
+
+    public void exitHorseStall() {
+        player.worldX = tileSize * 78; // Back onto the Dusty Gulch street
+        player.worldY = tileSize * 23;
+        ui.showNotification("Left the Horse Stall.");
+    }
+
     public void startGameThread() {
         setupGame();
         gameThread = new Thread(this);
@@ -321,10 +333,38 @@ public class GamePanel extends JPanel implements Runnable {
                     continue;
                 if (hb.box.intersects(e.getWorldCollisionBox())) {
                     hb.markHit(i);
-                    e.takeDamage(hb.damage);
+
+                    // ENEMY MASTERY (LC 347): scale damage by Top-K kills
+                    double masteryMult = player.getMasteryDamageMultiplier(e.type);
+                    int finalDmg = (int) Math.round(hb.damage * masteryMult);
+                    boolean masteryActive = masteryMult > 1.0;
+
+                    e.takeDamage(finalDmg);
                     damageNumbers.add(new DamageNumber(
-                            e.worldX + 16, e.worldY, hb.damage, hb.crit));
-                    ui.showNotification(hb.crit ? "Critical Hit! -" + hb.damage : "-" + hb.damage);
+                            e.worldX + 16, e.worldY, finalDmg, hb.crit || masteryActive));
+                    String dmgStr = hb.crit ? "Critical Hit! -" + finalDmg : "-" + finalDmg;
+                    if (masteryActive) dmgStr += " (Mastery " + (int)((masteryMult - 1) * 100) + "%)";
+                    ui.showNotification(dmgStr);
+
+                    // On kill -> feed the Top-K frequency tracker
+                    if (!e.alive) {
+                        String killedType = e.type;
+                        boolean wasInTop = player.topMasteredEnemies.contains(killedType);
+                        player.onEnemyKilled(killedType);
+                        boolean nowInTop = player.topMasteredEnemies.contains(killedType);
+                        int kills = player.enemyKillCount.getOrDefault(killedType, 0);
+
+                        if (!wasInTop && nowInTop) {
+                            ui.showNotification("\uD83C\uDFC6 " + killedType + " enters your Top-3!");
+                        }
+                        if (kills % 5 == 0) {
+                            int bonusPct = (int)((player.getMasteryDamageMultiplier(killedType) - 1) * 100);
+                            String title = player.getMasteryTitle();
+                            ui.showNotification("\u2605 MASTERY: " + kills + " " + killedType + " slain!" +
+                                (title != null ? " (" + title + ")" : "") +
+                                (bonusPct > 0 ? " [+" + bonusPct + "% DMG]" : ""));
+                        }
+                    }
                 }
             }
         }

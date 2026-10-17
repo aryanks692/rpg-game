@@ -2,6 +2,7 @@ package util;
 
 import core.GamePanel;
 import entity.NPC;
+import entity.StableOwner;
 import entity.enemy.*;
 import object.*;
 
@@ -13,7 +14,7 @@ public class AssetSetter {
     }
 
     public void setupNPCs() {
-        gp.npcs = new NPC[12];
+        gp.npcs = new NPC[13];
         int ts = gp.tileSize;
         int rowOff = 30;
 
@@ -125,6 +126,9 @@ public class AssetSetter {
                 ts * 94, ts * 21,
                 "Gold in them hills, I tell ya! Yeehaw!",
                 "The red canyon and ancient ruins are filled with untold riches!");
+
+        // Stable Owner — inside the Horse Stall interior (Dusty Gulch)
+        gp.npcs[12] = new StableOwner(gp, ts * 67, ts * 90);
     }
 
     public void setupEnemies() {
@@ -335,5 +339,10 @@ public class AssetSetter {
         gp.objects[32] = new object.OBJ_Coin(gp, ts * 11, ts * 40, 25);
         gp.objects[33] = new object.OBJ_Coin(gp, ts * 12, ts * 40, 50);
         gp.objects[34] = new object.OBJ_Coin(gp, ts * 10, ts * 41, 100);
+
+        // Horse Stall (Dusty Gulch, just west of the corral / stables)
+        gp.objects[35] = new OBJ_HorseStall(gp);
+        gp.objects[35].worldX = ts * 77;
+        gp.objects[35].worldY = ts * 19;
     }
 }

@@ -68,10 +68,12 @@ public class NotificationManager {
             }
             if (n.done()) {
                 it.remove();
-                if (!pending.isEmpty() && active.size() < MAX_VISIBLE) {
-                    active.add(new Notif(pending.poll()));
-                }
             }
+        }
+        // Promote queued notifications only AFTER iteration finishes,
+        // otherwise adding to `active` mid-iteration throws ConcurrentModificationException.
+        while (!pending.isEmpty() && active.size() < MAX_VISIBLE) {
+            active.add(new Notif(pending.poll()));
         }
     }
 

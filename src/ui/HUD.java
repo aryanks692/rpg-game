@@ -35,6 +35,7 @@ public class HUD {
         drawHearts(g2, p);
         drawStatsPanel(g2, p);
         drawZoneLabel(g2, p);
+        drawMountIndicator(g2, p);
         drawQuestTracker(g2);
     }
 
@@ -62,7 +63,7 @@ public class HUD {
 
     // ── Stats panel (top-right) ────────────────────────────────────────────────
     private void drawStatsPanel(Graphics2D g2, Player p) {
-        int pw = 168, ph = 106;
+        int pw = 168, ph = 122;
         int px = gp.screenWidth - pw - 8, py = 8;
         UIPanel.drawPanel(g2, px, py, pw, ph);
 
@@ -130,6 +131,18 @@ public class HUD {
             g2.setColor(UIConstants.COL_TEXT_GOOD);
             g2.drawString("-" + disc + "%", lx + 115, py + 96);
         }
+
+        // Row 6: Enemy Mastery title
+        String mastery = p.getMasteryTitle();
+        if (mastery != null) {
+            g2.setFont(UIFonts.SMALL_B);
+            g2.setColor(new Color(255, 160, 60));
+            g2.drawString("\u2694 " + mastery, lx, py + 114);
+            g2.setColor(UIConstants.COL_TEXT_DIM);
+            g2.setFont(UIFonts.SMALL);
+            Integer r = p.masteryRank.get(mastery.substring(0, mastery.length() - 4));
+            g2.drawString("#" + (r != null ? r : 1) + " most killed", lx + 72, py + 114);
+        }
     }
 
     private Color getTierColor(String tier) {
@@ -155,6 +168,21 @@ public class HUD {
         g2.fillRoundRect(zx, zy - 14, zw, 20, 10, 10);
         g2.setColor(new Color(210, 215, 255));
         g2.drawString(zone, zx + 8, zy);
+    }
+
+    // ── Mounted indicator (bottom-left) ────────────────────────────────────────
+    private void drawMountIndicator(Graphics2D g2, Player p) {
+        if (!p.onHorse) return;
+        String txt = "RIDING  [C]";
+        g2.setFont(UIFonts.SMALL_B);
+        FontMetrics fm = g2.getFontMetrics();
+        int w = fm.stringWidth(txt) + 16;
+        int x = 12;
+        int y = gp.screenHeight - 44;
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRoundRect(x, y, w, 20, 10, 10);
+        g2.setColor(new Color(255, 210, 120));
+        g2.drawString(txt, x + 8, y + 14);
     }
 
     // ── Active quest tracker (top-centre) ──────────────────────────────────────

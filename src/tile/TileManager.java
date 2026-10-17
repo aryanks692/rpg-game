@@ -553,6 +553,24 @@ public class TileManager {
         mapTileNum[87][97] = PATH;
         mapTileNum[89][97] = PATH;
         mapTileNum[88][98] = PATH; // Exit doorway mat
+
+        // --- 7. HORSE STABLE INTERIOR (Cols 62-72, Rows 88-96) ---
+        // A small walled stable room the player is teleported into from the
+        // Dusty Gulch Horse Stall. The Stable Owner NPC lives here.
+        for (int c = 62; c <= 72; c++) {
+            for (int r = 88; r <= 96; r++) {
+                if (c == 62 || c == 72 || r == 88 || r == 96) {
+                    mapTileNum[c][r] = WOOD_FENCE; // Log perimeter walls
+                } else {
+                    mapTileNum[c][r] = WOOD_PLANK; // Wooden stable floor
+                }
+            }
+        }
+        // Stalls / hay dividers along the back wall
+        mapTileNum[64][91] = HITCHING_POST;
+        mapTileNum[70][91] = HITCHING_POST;
+        // Exit doorway mat at the bottom-center
+        mapTileNum[67][95] = PATH;
     }
 
     private void paintZone(int c1, int r1, int c2, int r2, int mainTile, int bg1, int bg2) {

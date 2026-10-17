@@ -16,6 +16,7 @@ javac -d out -sourcepath src -encoding UTF-8 ^
   src/entity/Player.java ^
   src/entity/NPC.java ^
   src/entity/ImageNPC.java ^
+  src/entity/StableOwner.java ^
   src/entity/enemy/Enemy.java ^
   src/entity/enemy/Slime.java ^
   src/entity/enemy/Skeleton.java ^

@@ -84,6 +84,7 @@ public class SaveManager {
             prop.setProperty("potionCount", String.valueOf(p.potionCount));
             prop.setProperty("hasWeapon", String.valueOf(p.hasWeapon));
             prop.setProperty("hasShield", String.valueOf(p.hasShield));
+            prop.setProperty("hasHorse", String.valueOf(p.hasHorse));
             prop.setProperty("currentZone", p.currentZone);
 
             // Inventory
@@ -131,6 +132,7 @@ public class SaveManager {
             p.potionCount = Integer.parseInt(prop.getProperty("potionCount", String.valueOf(p.potionCount)));
             p.hasWeapon = Boolean.parseBoolean(prop.getProperty("hasWeapon", String.valueOf(p.hasWeapon)));
             p.hasShield = Boolean.parseBoolean(prop.getProperty("hasShield", String.valueOf(p.hasShield)));
+            p.hasHorse = Boolean.parseBoolean(prop.getProperty("hasHorse", String.valueOf(p.hasHorse)));
             p.currentZone = prop.getProperty("currentZone", p.currentZone);
 
             // Inventory
